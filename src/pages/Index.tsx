@@ -2,7 +2,7 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
-import { Box, Utensils, Water } from "lucide-react";
+import { Box, Utensils, Droplets } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 
@@ -109,7 +109,7 @@ const Index = () => {
               <div className="bg-white rounded-lg border border-gray-200 overflow-hidden shadow-sm hover:shadow-md transition-all h-full">
                 <div className="p-6 md:p-8">
                   <div className="w-12 h-12 bg-sky-50 rounded-full flex items-center justify-center mb-6">
-                    <Water className="h-6 w-6 text-sky-600" />
+                    <Droplets className="h-6 w-6 text-sky-600" />
                   </div>
                   <h3 className="text-xl font-medium text-gray-900 mb-2">Water Storage</h3>
                   <p className="text-gray-600">

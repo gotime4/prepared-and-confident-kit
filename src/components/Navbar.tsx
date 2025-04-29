@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Home, Box, Utensils, Water } from 'lucide-react';
+import { Home, Box, Utensils, Droplets } from 'lucide-react';
 
 const Navbar = () => {
   const [scrolled, setScrolled] = useState(false);
@@ -55,7 +55,7 @@ const Navbar = () => {
               to="/water"
               className="flex items-center space-x-1 text-sm font-medium text-gray-700 hover:text-gray-900 transition-colors"
             >
-              <Water className="h-4 w-4" />
+              <Droplets className="h-4 w-4" />
               <span>Water Storage</span>
             </Link>
           </nav>

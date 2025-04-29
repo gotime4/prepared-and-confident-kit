@@ -1,4 +1,3 @@
-
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import QuantityCalculator from "@/components/QuantityCalculator";
@@ -10,7 +9,7 @@ import {
   CardTitle,
   CardDescription
 } from "@/components/ui/card";
-import { Water } from "lucide-react";
+import { Droplets } from "lucide-react";
 
 const WaterStorage = () => {
   const [peopleCount, setPeopleCount] = useState(1);
@@ -162,7 +161,7 @@ const WaterStorage = () => {
                     {waterMethods.map((method, index) => (
                       <div key={index} className="border-b border-gray-200 last:border-b-0 pb-6 last:pb-0">
                         <h3 className="text-lg font-medium flex items-center">
-                          <Water className="h-5 w-5 text-sky-500 mr-2" />
+                          <Droplets className="h-5 w-5 text-sky-500 mr-2" />
                           {method.title}
                         </h3>
                         <p className="mt-1 text-gray-600">{method.description}</p>
