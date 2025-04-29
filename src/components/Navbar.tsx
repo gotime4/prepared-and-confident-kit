@@ -1,92 +1,121 @@
+import React, { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
+import { Box, Utensils, Droplets, Menu, X, ExternalLink } from "lucide-react";
 
-import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { Home, Box, Utensils, Droplets } from 'lucide-react';
+interface NavLinkProps {
+  to: string;
+  icon: React.ReactNode;
+  label: string;
+  isScrolled: boolean;
+}
+
+const NavLink = ({ to, icon, label, isScrolled }: NavLinkProps) => (
+  <Link
+    to={to}
+    className={`flex items-center space-x-2 py-2 px-4 rounded-md transition-colors hover:bg-gray-100 ${
+      isScrolled ? "text-gray-900" : "text-gray-900"
+    }`}
+  >
+    {icon}
+    <span>{label}</span>
+  </Link>
+);
 
 const Navbar = () => {
-  const [scrolled, setScrolled] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
-      setScrolled(window.scrollY > 20);
+      setIsScrolled(window.scrollY > 20);
     };
 
-    window.addEventListener('scroll', handleScroll);
+    window.addEventListener("scroll", handleScroll);
     return () => {
-      window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener("scroll", handleScroll);
     };
   }, []);
 
+  const toggleMobileMenu = () => {
+    setMobileMenuOpen(!mobileMenuOpen);
+  };
+
   return (
-    <header
+    <div 
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        scrolled ? 'bg-white/90 backdrop-blur-md shadow-sm' : 'bg-transparent'
+        isScrolled ? "bg-white shadow-sm" : "bg-transparent"
       }`}
     >
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex h-16 items-center justify-between">
-          <Link to="/" className="flex items-center space-x-2">
-            <span className="text-xl font-semibold tracking-tight">Self-Reliance Guide</span>
+        <div className="flex items-center justify-between py-4">
+          {/* Logo & Brand */}
+          <Link to="/" className="flex items-center">
+            <span 
+              className={`font-bold text-xl transition-colors ${
+                isScrolled ? "text-gray-900" : "text-gray-900"
+              }`}
+            >
+              Reliance<span className="text-sky-600">HQ</span>
+            </span>
           </Link>
 
-          <nav className="hidden md:flex space-x-8 items-center">
-            <Link
-              to="/"
-              className="flex items-center space-x-1 text-sm font-medium text-gray-700 hover:text-gray-900 transition-colors"
-            >
-              <Home className="h-4 w-4" />
-              <span>Home</span>
-            </Link>
-            <Link
-              to="/kit"
-              className="flex items-center space-x-1 text-sm font-medium text-gray-700 hover:text-gray-900 transition-colors"
-            >
-              <Box className="h-4 w-4" />
-              <span>72-Hour Kit</span>
-            </Link>
-            <Link
-              to="/food"
-              className="flex items-center space-x-1 text-sm font-medium text-gray-700 hover:text-gray-900 transition-colors"
-            >
-              <Utensils className="h-4 w-4" />
-              <span>Food Storage</span>
-            </Link>
-            <Link
-              to="/water"
-              className="flex items-center space-x-1 text-sm font-medium text-gray-700 hover:text-gray-900 transition-colors"
-            >
-              <Droplets className="h-4 w-4" />
-              <span>Water Storage</span>
-            </Link>
+          {/* Navigation Links - Desktop */}
+          <nav className="hidden md:flex items-center space-x-1">
+            <NavLink to="/kit" icon={<Box size={18} />} label="72-Hour Kits" isScrolled={isScrolled} />
+            <NavLink to="/food" icon={<Utensils size={18} />} label="Food Storage" isScrolled={isScrolled} />
+            <NavLink to="/water" icon={<Droplets size={18} />} label="Water Storage" isScrolled={isScrolled} />
+            <NavLink to="/resources" icon={<ExternalLink size={18} />} label="Resources" isScrolled={isScrolled} />
           </nav>
 
-          <div className="md:hidden">
-            <button
-              type="button"
-              className="inline-flex items-center justify-center p-2 rounded-md text-gray-700 hover:text-gray-900 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500"
-              aria-expanded="false"
-            >
-              <span className="sr-only">Open main menu</span>
-              <svg
-                className="block h-6 w-6"
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                aria-hidden="true"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M4 6h16M4 12h16M4 18h16"
-                />
-              </svg>
-            </button>
-          </div>
+          {/* Mobile Menu Button */}
+          <button
+            className="md:hidden p-2 rounded-md focus:outline-none"
+            onClick={toggleMobileMenu}
+            aria-label="Toggle menu"
+          >
+            {mobileMenuOpen ? (
+              <X className={`h-6 w-6 ${isScrolled ? 'text-gray-900' : 'text-gray-900'}`} />
+            ) : (
+              <Menu className={`h-6 w-6 ${isScrolled ? 'text-gray-900' : 'text-gray-900'}`} />
+            )}
+          </button>
         </div>
       </div>
-    </header>
+
+      {/* Mobile Menu */}
+      <div
+        className={`md:hidden ${
+          mobileMenuOpen ? "max-h-64" : "max-h-0"
+        } bg-white overflow-hidden transition-all duration-300 shadow-sm`}
+      >
+        <div className="container mx-auto px-4 py-2">
+          <Link to="/kit" className="block py-2 px-4 text-gray-900 hover:bg-gray-100 rounded-md">
+            <div className="flex items-center space-x-2">
+              <Box size={18} />
+              <span>72-Hour Kits</span>
+            </div>
+          </Link>
+          <Link to="/food" className="block py-2 px-4 text-gray-900 hover:bg-gray-100 rounded-md">
+            <div className="flex items-center space-x-2">
+              <Utensils size={18} />
+              <span>Food Storage</span>
+            </div>
+          </Link>
+          <Link to="/water" className="block py-2 px-4 text-gray-900 hover:bg-gray-100 rounded-md">
+            <div className="flex items-center space-x-2">
+              <Droplets size={18} />
+              <span>Water Storage</span>
+            </div>
+          </Link>
+          <Link to="/resources" className="block py-2 px-4 text-gray-900 hover:bg-gray-100 rounded-md">
+            <div className="flex items-center space-x-2">
+              <ExternalLink size={18} />
+              <span>Resources</span>
+            </div>
+          </Link>
+        </div>
+      </div>
+    </div>
   );
 };
 

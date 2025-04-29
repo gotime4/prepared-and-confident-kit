@@ -8,6 +8,7 @@ import Index from "./pages/Index";
 import KitPage from "./pages/KitPage";
 import FoodStorage from "./pages/FoodStorage";
 import WaterStorage from "./pages/WaterStorage";
+import TrustedResources from "./pages/TrustedResources";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -23,6 +24,7 @@ const App = () => (
           <Route path="/kit" element={<KitPage />} />
           <Route path="/food" element={<FoodStorage />} />
           <Route path="/water" element={<WaterStorage />} />
+          <Route path="/resources" element={<TrustedResources />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
