@@ -1,9 +1,10 @@
+
 import React, { useState, useEffect } from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import QuantityCalculator from "@/components/QuantityCalculator";
 import { useSupply, SupplyItem } from "@/contexts/SupplyContext";
-import SupplyItem as SupplyItemComponent from "@/components/SupplyItem";
+import SupplyItemComponent from "@/components/SupplyItem";
 import { 
   Card, 
   CardContent,
