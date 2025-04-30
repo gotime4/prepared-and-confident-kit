@@ -32,7 +32,11 @@ interface KitCategory {
 
 const KitPage = () => {
   const [peopleCount, setPeopleCount] = useState(1);
-  const { kitItems: contextKitItems, updateKitItem } = useSupply();
+  const { 
+    kitItems: contextKitItems, 
+    updateKitItem, 
+    initializeKitItems 
+  } = useSupply();
   const [categories, setCategories] = useState<KitCategory[]>([
     {
       id: "water",
@@ -109,12 +113,10 @@ const KitPage = () => {
         }))
       );
       
-      // Store these items in the context
-      initialKitItems.forEach(item => {
-        updateKitItem(item.id, item.currentAmount);
-      });
+      // Store these items in the context using the new initialize function
+      initializeKitItems(initialKitItems);
     }
-  }, [categories, contextKitItems.length, peopleCount, updateKitItem]);
+  }, [categories, contextKitItems.length, peopleCount, initializeKitItems]);
 
   const handleQuantityChange = (newCount: number) => {
     setPeopleCount(newCount);

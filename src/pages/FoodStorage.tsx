@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -17,7 +16,11 @@ import { Progress } from "@/components/ui/progress";
 
 const FoodStorage = () => {
   const [peopleCount, setPeopleCount] = useState(1);
-  const { foodItems: contextFoodItems, updateFoodItem } = useSupply();
+  const { 
+    foodItems: contextFoodItems, 
+    updateFoodItem, 
+    initializeFoodItems 
+  } = useSupply();
   const [foodItems, setFoodItems] = useState<SupplyItem[]>([]);
   
   // Initialize food items with recommended quantities
@@ -74,12 +77,15 @@ const FoodStorage = () => {
         { id: "banana-chips", name: "Banana Chips", recommendedAmount: 2 * peopleCount, currentAmount: 0, unit: "lbs", category: "Dried Fruits", type: "food" }
       ];
       
+      // Initialize the food items in the context
+      initializeFoodItems(initialItems);
+      // Also set them in the local state
       setFoodItems(initialItems);
     } else {
       // If we have items from context, use those
       setFoodItems(contextFoodItems);
     }
-  }, [contextFoodItems, peopleCount]);
+  }, [contextFoodItems, peopleCount, initializeFoodItems]);
 
   const handleQuantityChange = (newCount: number) => {
     setPeopleCount(newCount);

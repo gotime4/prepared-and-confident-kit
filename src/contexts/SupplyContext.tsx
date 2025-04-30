@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 
 // Types for our supply items
@@ -18,6 +17,8 @@ interface SupplyContextType {
   kitItems: SupplyItem[];
   updateFoodItem: (id: string, amount: number) => void;
   updateKitItem: (id: string, amount: number) => void;
+  initializeFoodItems: (items: SupplyItem[]) => void;
+  initializeKitItems: (items: SupplyItem[]) => void;
   calculateProgress: (items: SupplyItem[]) => number;
   getPriorities: () => SupplyItem[];
   getCompletedCount: () => { complete: number, inProgress: number, notStarted: number };
@@ -59,12 +60,32 @@ export const SupplyProvider: React.FC<SupplyProviderProps> = ({ children }) => {
 
   // Save to localStorage whenever items change
   useEffect(() => {
-    localStorage.setItem('foodItems', JSON.stringify(foodItems));
+    if (foodItems.length > 0) {
+      localStorage.setItem('foodItems', JSON.stringify(foodItems));
+    }
   }, [foodItems]);
   
   useEffect(() => {
-    localStorage.setItem('kitItems', JSON.stringify(kitItems));
+    if (kitItems.length > 0) {
+      localStorage.setItem('kitItems', JSON.stringify(kitItems));
+    }
   }, [kitItems]);
+
+  // Initialize food items (for first time setup)
+  const initializeFoodItems = (items: SupplyItem[]) => {
+    // Only initialize if we don't already have items
+    if (foodItems.length === 0) {
+      setFoodItems(items);
+    }
+  };
+
+  // Initialize kit items (for first time setup)
+  const initializeKitItems = (items: SupplyItem[]) => {
+    // Only initialize if we don't already have items
+    if (kitItems.length === 0) {
+      setKitItems(items);
+    }
+  };
 
   // Update a food item's current amount
   const updateFoodItem = (id: string, amount: number) => {
@@ -142,6 +163,8 @@ export const SupplyProvider: React.FC<SupplyProviderProps> = ({ children }) => {
     kitItems,
     updateFoodItem,
     updateKitItem,
+    initializeFoodItems,
+    initializeKitItems,
     calculateProgress,
     getPriorities,
     getCompletedCount,
