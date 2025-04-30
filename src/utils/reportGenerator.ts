@@ -1,14 +1,9 @@
-
 import { SupplyItem } from "../contexts/SupplyContext";
 import { jsPDF } from "jspdf";
-import autoTable from 'jspdf-autotable';
+import 'jspdf-autotable';
 
-// Extend jsPDF with autoTable plugin
-declare module "jspdf" {
-  interface jsPDF {
-    autoTable: typeof autoTable;
-  }
-}
+// No need for manual declaration or import of autoTable since we're using the import statement above
+// which adds the function to jsPDF's prototype
 
 export const generatePDF = (
   foodItems: SupplyItem[],
@@ -59,10 +54,11 @@ export const generatePDF = (
   
   let yPos = 70;
   
+  // Fixed line 62 with proper arguments format
   doc.autoTable({
-    startY: yPos,
     head: [["Category", "Item", "Recommended", "You Have", "Progress", "Status"]],
     body: foodData,
+    startY: yPos,
     headStyles: { fillColor: [176, 196, 222] },
     alternateRowStyles: { fillColor: [240, 248, 255] },
     margin: { top: 70 }
@@ -103,10 +99,11 @@ export const generatePDF = (
     getStatusText(item.currentAmount, item.recommendedAmount)
   ]);
   
+  // Fixed line 106 with proper arguments format
   doc.autoTable({
-    startY: yPos,
     head: [["Category", "Item", "Recommended", "You Have", "Progress", "Status"]],
     body: kitData,
+    startY: yPos,
     headStyles: { fillColor: [176, 196, 222] },
     alternateRowStyles: { fillColor: [240, 248, 255] },
     margin: { top: yPos }
