@@ -16,7 +16,7 @@ interface SupplyContextType {
   foodItems: SupplyItem[];
   kitItems: SupplyItem[];
   updateFoodItem: (id: string, amount: number) => void;
-  updateKitItem: (id: string, amount: number) => void;
+  updateKitItem: (id: string, amount: number, recommendedAmount?: number) => void;
   initializeFoodItems: (items: SupplyItem[]) => void;
   initializeKitItems: (items: SupplyItem[]) => void;
   updateFoodItemsRecommendedAmounts: (items: SupplyItem[]) => void; // Add new function
@@ -98,10 +98,16 @@ export const SupplyProvider: React.FC<SupplyProviderProps> = ({ children }) => {
   };
 
   // Update a kit item's current amount
-  const updateKitItem = (id: string, amount: number) => {
+  const updateKitItem = (id: string, amount: number, recommendedAmount?: number) => {
     setKitItems(prev => 
       prev.map(item => 
-        item.id === id ? { ...item, currentAmount: amount } : item
+        item.id === id ? 
+          { 
+            ...item, 
+            currentAmount: amount,
+            ...(recommendedAmount !== undefined && { recommendedAmount })
+          } 
+          : item
       )
     );
   };

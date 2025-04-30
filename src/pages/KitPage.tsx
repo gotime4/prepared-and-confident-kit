@@ -139,7 +139,7 @@ const KitPage = () => {
           const categoryItem = category.items.find(i => i.id === item.id);
           if (categoryItem) {
             const newRecommendedAmount = calculateItemQuantity(categoryItem.quantity, categoryItem.personMultiplier, newCount);
-            updateKitItem(item.id, item.currentAmount);
+            updateKitItem(item.id, item.currentAmount, newRecommendedAmount);
           }
         }
       });
@@ -204,6 +204,7 @@ const KitPage = () => {
               <QuantityCalculator 
                 defaultQuantity={peopleCount} 
                 onChange={handleQuantityChange}
+                value={peopleCount}
               />
 
               <Card className="border-gray-100">
