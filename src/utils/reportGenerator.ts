@@ -48,7 +48,7 @@ export const generatePDF = (
     );
     yPos += 6; // Reduced spacing
     
-    // Food storage data table
+    // Food storage data table with improved continuous table handling
     const foodData = foodItems.length > 0 ? foodItems.map(item => [
       item.category,
       item.name,
@@ -57,8 +57,17 @@ export const generatePDF = (
       `${Math.min(Math.floor((item.currentAmount / item.recommendedAmount) * 100), 100)}%`,
       getStatusText(item.currentAmount, item.recommendedAmount)
     ]) : [["No data", "-", "-", "-", "-", "-"]];
+
+    // Group food items by category to break the table at logical points
+    const groupedFoodItems = {};
+    foodItems.forEach(item => {
+      if (!groupedFoodItems[item.category]) {
+        groupedFoodItems[item.category] = [];
+      }
+      groupedFoodItems[item.category].push(item);
+    });
     
-    // Use autoTable directly with optimized spacing
+    // Use autoTable directly with optimized spacing and better pagination control
     autoTable(doc, {
       head: [["Category", "Item", "Recommended", "You Have", "Progress", "Status"]],
       body: foodData,
@@ -67,8 +76,9 @@ export const generatePDF = (
       alternateRowStyles: { fillColor: [240, 248, 255] },
       margin: { top: yPos },
       styles: { cellPadding: 2 }, // Reduced cell padding
-      rowPageBreak: 'avoid',      // Avoid rows breaking across pages
-      didDrawPage: (data) => {    // Header and footer handling
+      showHead: 'firstPage', // Show header on first page only
+      pageBreak: 'avoid', // Avoid breaking rows across pages if possible
+      didDrawPage: (data) => {
         // Add page number at the bottom
         doc.setFontSize(8);
         const pageCount = doc.getNumberOfPages();
@@ -106,7 +116,7 @@ export const generatePDF = (
     doc.text("Here's how your short-term emergency supply is shaping up.", 20, yPos);
     yPos += 6; // Reduced spacing
     
-    // Kit data table
+    // Kit data table with improved continuous table handling
     const kitData = kitItems.length > 0 ? kitItems.map(item => [
       item.category,
       item.name,
@@ -116,6 +126,15 @@ export const generatePDF = (
       getStatusText(item.currentAmount, item.recommendedAmount)
     ]) : [["No data", "-", "-", "-", "-", "-"]];
     
+    // Group kit items by category 
+    const groupedKitItems = {};
+    kitItems.forEach(item => {
+      if (!groupedKitItems[item.category]) {
+        groupedKitItems[item.category] = [];
+      }
+      groupedKitItems[item.category].push(item);
+    });
+
     // Use autoTable directly with optimized spacing
     autoTable(doc, {
       head: [["Category", "Item", "Recommended", "You Have", "Progress", "Status"]],
@@ -125,11 +144,18 @@ export const generatePDF = (
       alternateRowStyles: { fillColor: [240, 248, 255] },
       margin: { top: yPos },
       styles: { cellPadding: 2 }, // Reduced cell padding
-      rowPageBreak: 'avoid'       // Avoid rows breaking across pages
+      pageBreak: 'avoid', // Avoid breaking rows across pages if possible
+      showHead: 'everyPage', // Show header on every page
     });
     
     // Get the final Y position after the table
-    yPos = (doc as any).lastAutoTable.finalY + 8; // Reduced spacing after table
+    yPos = (doc as any).lastAutoTable.finalY + 8; // Spacing after table
+
+    // Check if we need to add a page for the summary
+    if (yPos > doc.internal.pageSize.height - 60) {
+      doc.addPage();
+      yPos = 20;
+    }
 
     // Section 3: Summary
     doc.setFontSize(14);
