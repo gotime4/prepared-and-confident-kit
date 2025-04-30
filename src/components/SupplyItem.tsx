@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Progress } from "@/components/ui/progress";
 import { Input } from "@/components/ui/input";
@@ -58,12 +57,12 @@ const SupplyItem: React.FC<SupplyItemProps> = ({
       
       <div className="flex flex-col md:flex-row md:items-center gap-4 mt-3 md:mt-0">
         <div className="flex items-center">
-          <span className="text-sm text-gray-500 w-24">Recommended:</span>
+          <span className="text-sm text-gray-500 min-w-[120px]">Recommended:</span>
           <span className="font-medium">{recommendedAmount} {unit}</span>
         </div>
         
         <div className="flex items-center">
-          <span className="text-sm text-gray-500 w-24">What I Have:</span>
+          <span className="text-sm text-gray-500 min-w-[120px]">What I Have:</span>
           <Input
             type="number"
             value={amount}
