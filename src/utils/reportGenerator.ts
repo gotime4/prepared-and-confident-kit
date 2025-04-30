@@ -1,10 +1,12 @@
 import { SupplyItem } from "../contexts/SupplyContext";
 import { jsPDF } from "jspdf";
-// Import autoTable directly (fix for missing autoTable function)
 import autoTable from 'jspdf-autotable';
 
-// Add the autoTable method to the jsPDF instance
-jsPDF.prototype.autoTable = autoTable;
+declare module 'jspdf' {
+  interface jsPDF {
+    autoTable: (options: any) => jsPDF;
+  }
+}
 
 export const generatePDF = (
   foodItems: SupplyItem[],
@@ -14,31 +16,43 @@ export const generatePDF = (
   priorities: SupplyItem[]
 ) => {
   try {
-    // Create a new PDF document
+    // Create a new PDF document with cleaner formatting
     const doc = new jsPDF();
-    const dateGenerated = new Date().toLocaleDateString('en-US', {
-      month: 'long',
-      day: 'numeric',
-      year: 'numeric'
-    });
+    
+    // Helper function to add page numbers
+    const addPageNumbers = () => {
+      const totalPages = doc.internal.getNumberOfPages();
+      for (let i = 1; i <= totalPages; i++) {
+        doc.setPage(i);
+        doc.setFontSize(8);
+        doc.setTextColor(100, 100, 100);
+        doc.text(`Page ${i} of ${totalPages}`, doc.internal.pageSize.width / 2, doc.internal.pageSize.height - 10, { align: 'center' });
+      }
+    };
 
-    // Add header
+    // Document header
     doc.setFontSize(22);
+    doc.setTextColor(0, 0, 0);
     doc.text("Family Readiness Report", 105, 20, { align: "center" });
     
     doc.setFontSize(12);
     doc.text("A personalized snapshot of your emergency and long-term preparedness", 105, 30, { align: "center" });
     
+    // Date and household info
+    const dateGenerated = new Date().toLocaleDateString('en-US', {
+      month: 'long', day: 'numeric', year: 'numeric'
+    });
     doc.setFontSize(10);
     doc.text(`Date Generated: ${dateGenerated}`, 20, 40);
     doc.text("Prepared For: Your Household", 20, 45);
 
-    let yPos = 50; // Starting position closer to the top
+    // Start Y position for first section
+    let yPos = 55;
 
     // Section 1: Long-Term Food Storage
     doc.setFontSize(14);
     doc.text("Section 1: Long-Term Food Storage Overview", 20, yPos);
-    yPos += 8; // Reduced spacing
+    yPos += 8;
     
     doc.setFontSize(10);
     doc.text(
@@ -46,9 +60,9 @@ export const generatePDF = (
       20,
       yPos
     );
-    yPos += 6; // Reduced spacing
+    yPos += 8;
     
-    // Food storage data table with improved continuous table handling
+    // Food storage data table
     const foodData = foodItems.length > 0 ? foodItems.map(item => [
       item.category,
       item.name,
@@ -57,40 +71,28 @@ export const generatePDF = (
       `${Math.min(Math.floor((item.currentAmount / item.recommendedAmount) * 100), 100)}%`,
       getStatusText(item.currentAmount, item.recommendedAmount)
     ]) : [["No data", "-", "-", "-", "-", "-"]];
-
-    // Group food items by category to break the table at logical points
-    const groupedFoodItems = {};
-    foodItems.forEach(item => {
-      if (!groupedFoodItems[item.category]) {
-        groupedFoodItems[item.category] = [];
-      }
-      groupedFoodItems[item.category].push(item);
-    });
     
-    // Use autoTable directly with optimized spacing and better pagination control
-    autoTable(doc, {
+    // Add food items table with tight formatting
+    doc.autoTable({
       head: [["Category", "Item", "Recommended", "You Have", "Progress", "Status"]],
       body: foodData,
       startY: yPos,
       headStyles: { fillColor: [176, 196, 222] },
       alternateRowStyles: { fillColor: [240, 248, 255] },
-      margin: { top: yPos },
-      styles: { cellPadding: 2 }, // Reduced cell padding
-      showHead: 'firstPage', // Show header on first page only
-      pageBreak: 'avoid', // Avoid breaking rows across pages if possible
-      didDrawPage: (data) => {
-        // Add page number at the bottom
-        doc.setFontSize(8);
-        const pageCount = doc.getNumberOfPages();
-        for (let i = 1; i <= pageCount; i++) {
-          doc.setPage(i);
-          doc.text(`Page ${i} of ${pageCount}`, doc.internal.pageSize.width / 2, doc.internal.pageSize.height - 10, { align: 'center' });
-        }
-      }
+      styles: { cellPadding: 2, fontSize: 9 },
+      columnStyles: {
+        0: { cellWidth: 'auto' },
+        1: { cellWidth: 'auto' },
+        2: { cellWidth: 'auto' },
+        3: { cellWidth: 'auto' },
+        4: { cellWidth: 'auto' },
+        5: { cellWidth: 'auto' }
+      },
+      margin: { top: 10 },
     });
     
-    // Get the final Y position after the table
-    yPos = (doc as any).lastAutoTable.finalY + 5; // Reduced spacing after table
+    // Update position after table
+    yPos = (doc as any).lastAutoTable.finalY + 5;
 
     // Top Priority Suggestions
     if (priorities.length > 0) {
@@ -98,25 +100,29 @@ export const generatePDF = (
       if (foodPriorities.length > 0) {
         const priorityNames = foodPriorities.map(item => item.name).join(", ");
         doc.text(`Top Priority Suggestions: ${priorityNames}`, 20, yPos);
-        yPos += 8; // Reduced spacing
-      } else {
-        yPos += 3; // Even less spacing if no priorities
+        yPos += 8;
       }
     } else {
       doc.text("No priority items identified yet.", 20, yPos);
-      yPos += 8; // Reduced spacing
+      yPos += 8;
     }
 
     // Section 2: 72-Hour Emergency Kit
+    // Check if we need to start a new page for better formatting
+    if (yPos > doc.internal.pageSize.height - 120) {
+      doc.addPage();
+      yPos = 20;
+    }
+
     doc.setFontSize(14);
     doc.text("Section 2: 72-Hour Emergency Kit", 20, yPos);
-    yPos += 8; // Reduced spacing
+    yPos += 8;
     
     doc.setFontSize(10);
     doc.text("Here's how your short-term emergency supply is shaping up.", 20, yPos);
-    yPos += 6; // Reduced spacing
+    yPos += 8;
     
-    // Kit data table with improved continuous table handling
+    // Kit data table
     const kitData = kitItems.length > 0 ? kitItems.map(item => [
       item.category,
       item.name,
@@ -126,32 +132,29 @@ export const generatePDF = (
       getStatusText(item.currentAmount, item.recommendedAmount)
     ]) : [["No data", "-", "-", "-", "-", "-"]];
     
-    // Group kit items by category 
-    const groupedKitItems = {};
-    kitItems.forEach(item => {
-      if (!groupedKitItems[item.category]) {
-        groupedKitItems[item.category] = [];
-      }
-      groupedKitItems[item.category].push(item);
-    });
-
-    // Use autoTable directly with optimized spacing
-    autoTable(doc, {
+    // Add kit items table with tight formatting
+    doc.autoTable({
       head: [["Category", "Item", "Recommended", "You Have", "Progress", "Status"]],
       body: kitData,
       startY: yPos,
       headStyles: { fillColor: [176, 196, 222] },
       alternateRowStyles: { fillColor: [240, 248, 255] },
-      margin: { top: yPos },
-      styles: { cellPadding: 2 }, // Reduced cell padding
-      pageBreak: 'avoid', // Avoid breaking rows across pages if possible
-      showHead: 'everyPage', // Show header on every page
+      styles: { cellPadding: 2, fontSize: 9 },
+      columnStyles: {
+        0: { cellWidth: 'auto' },
+        1: { cellWidth: 'auto' },
+        2: { cellWidth: 'auto' },
+        3: { cellWidth: 'auto' },
+        4: { cellWidth: 'auto' },
+        5: { cellWidth: 'auto' }
+      },
+      margin: { top: 10 },
     });
     
-    // Get the final Y position after the table
-    yPos = (doc as any).lastAutoTable.finalY + 8; // Spacing after table
+    // Update position after table
+    yPos = (doc as any).lastAutoTable.finalY + 8;
 
-    // Check if we need to add a page for the summary
+    // Make sure the summary section starts on a clean page if near bottom
     if (yPos > doc.internal.pageSize.height - 60) {
       doc.addPage();
       yPos = 20;
@@ -160,19 +163,19 @@ export const generatePDF = (
     // Section 3: Summary
     doc.setFontSize(14);
     doc.text("Section 3: Summary", 20, yPos);
-    yPos += 8; // Reduced spacing
+    yPos += 10;
     
     doc.setFontSize(10);
     doc.text(`■ Fully Prepared Categories: ${statusCounts.complete}`, 20, yPos);
-    yPos += 5;
+    yPos += 6;
     
     doc.text(`■ In Progress Categories: ${statusCounts.inProgress}`, 20, yPos);
-    yPos += 5;
+    yPos += 6;
     
     doc.text(`■ Not Started Categories: ${statusCounts.notStarted}`, 20, yPos);
-    yPos += 8; // Slightly larger spacing before overall score
+    yPos += 10;
     
-    doc.setFontSize(12); // Slightly larger font for the score
+    doc.setFontSize(12);
     doc.text(`Your Overall Readiness Score: ${overallScore}%`, 20, yPos);
     yPos += 8;
     
@@ -183,7 +186,10 @@ export const generatePDF = (
       yPos
     );
 
-    // Save the PDF
+    // Add page numbers
+    addPageNumbers();
+
+    // Return the completed PDF
     return doc;
   } catch (error) {
     console.error("Error generating PDF:", error);
