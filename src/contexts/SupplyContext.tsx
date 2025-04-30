@@ -19,6 +19,7 @@ interface SupplyContextType {
   updateKitItem: (id: string, amount: number) => void;
   initializeFoodItems: (items: SupplyItem[]) => void;
   initializeKitItems: (items: SupplyItem[]) => void;
+  updateFoodItemsRecommendedAmounts: (items: SupplyItem[]) => void; // Add new function
   calculateProgress: (items: SupplyItem[]) => number;
   getPriorities: () => SupplyItem[];
   getCompletedCount: () => { complete: number, inProgress: number, notStarted: number };
@@ -105,6 +106,16 @@ export const SupplyProvider: React.FC<SupplyProviderProps> = ({ children }) => {
     );
   };
 
+  // Update recommended amounts for food items
+  const updateFoodItemsRecommendedAmounts = (items: SupplyItem[]) => {
+    setFoodItems(prev => 
+      prev.map(item => {
+        const updatedItem = items.find(updated => updated.id === item.id);
+        return updatedItem ? { ...item, recommendedAmount: updatedItem.recommendedAmount } : item;
+      })
+    );
+  };
+
   // Calculate progress percentage for a list of items
   const calculateProgress = (items: SupplyItem[]): number => {
     if (items.length === 0) return 0;
@@ -165,6 +176,7 @@ export const SupplyProvider: React.FC<SupplyProviderProps> = ({ children }) => {
     updateKitItem,
     initializeFoodItems,
     initializeKitItems,
+    updateFoodItemsRecommendedAmounts,
     calculateProgress,
     getPriorities,
     getCompletedCount,

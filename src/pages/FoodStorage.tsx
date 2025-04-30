@@ -19,7 +19,8 @@ const FoodStorage = () => {
   const { 
     foodItems: contextFoodItems, 
     updateFoodItem, 
-    initializeFoodItems 
+    initializeFoodItems,
+    updateFoodItemsRecommendedAmounts
   } = useSupply();
   const [foodItems, setFoodItems] = useState<SupplyItem[]>([]);
   
@@ -88,18 +89,23 @@ const FoodStorage = () => {
   }, [contextFoodItems, peopleCount, initializeFoodItems]);
 
   const handleQuantityChange = (newCount: number) => {
-    setPeopleCount(newCount);
+    // Update local state first for immediate UI feedback
+    const updatedItems = foodItems.map(item => {
+      const baseAmount = item.recommendedAmount / peopleCount;
+      return {
+        ...item,
+        recommendedAmount: baseAmount * newCount
+      };
+    });
     
-    // Update recommended amounts based on new people count
-    setFoodItems(prevItems => 
-      prevItems.map(item => {
-        const baseAmount = item.recommendedAmount / peopleCount;
-        return {
-          ...item,
-          recommendedAmount: baseAmount * newCount
-        };
-      })
-    );
+    // Update local state
+    setFoodItems(updatedItems);
+    
+    // Update context state to keep it in sync
+    updateFoodItemsRecommendedAmounts(updatedItems);
+    
+    // Update people count
+    setPeopleCount(newCount);
 
     toast({
       title: "People Count Updated",
@@ -164,7 +170,7 @@ const FoodStorage = () => {
           <div className="lg:col-span-1">
             <div className="space-y-6 sticky top-24">
               <QuantityCalculator 
-                defaultQuantity={peopleCount} 
+                value={peopleCount}
                 onChange={handleQuantityChange}
               />
 

@@ -1,5 +1,3 @@
-
-import { useState } from 'react';
 import { 
   Card, 
   CardContent 
@@ -12,34 +10,28 @@ interface QuantityCalculatorProps {
   defaultQuantity?: number;
   onChange: (quantity: number) => void;
   label?: string;
+  value: number; // Add value prop to make this a controlled component
 }
 
 const QuantityCalculator = ({ 
-  defaultQuantity = 1, 
   onChange,
-  label = "Number of People" 
+  label = "Number of People",
+  value = 1  // Use value instead of internal state
 }: QuantityCalculatorProps) => {
-  const [quantity, setQuantity] = useState<number>(defaultQuantity);
-
   const handleDecrease = () => {
-    if (quantity > 1) {
-      const newQuantity = quantity - 1;
-      setQuantity(newQuantity);
-      onChange(newQuantity);
+    if (value > 1) {
+      onChange(value - 1);
     }
   };
 
   const handleIncrease = () => {
-    const newQuantity = quantity + 1;
-    setQuantity(newQuantity);
-    onChange(newQuantity);
+    onChange(value + 1);
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = parseInt(e.target.value);
-    if (!isNaN(value) && value >= 1) {
-      setQuantity(value);
-      onChange(value);
+    const newValue = parseInt(e.target.value);
+    if (!isNaN(newValue) && newValue >= 1) {
+      onChange(newValue);
     }
   };
 
@@ -57,7 +49,7 @@ const QuantityCalculator = ({
               onClick={handleDecrease} 
               variant="outline" 
               className="h-10 w-10 p-0 rounded-full border border-gray-200"
-              disabled={quantity <= 1}
+              disabled={value <= 1}
             >
               -
             </Button>
@@ -65,7 +57,7 @@ const QuantityCalculator = ({
               id="quantity"
               type="number" 
               className="h-10 text-center w-20" 
-              value={quantity} 
+              value={value} 
               onChange={handleInputChange}
               min={1}
             />
