@@ -22,6 +22,7 @@ const SupplyItem: React.FC<SupplyItemProps> = ({
   currentAmount = 0
 }) => {
   const [amount, setAmount] = useState<number>(currentAmount);
+  const [inputValue, setInputValue] = useState<string>(currentAmount > 0 ? currentAmount.toString() : '');
   const progress = Math.min(Math.floor((amount / recommendedAmount) * 100), 100);
   
   // Status based on progress percentage
@@ -45,8 +46,16 @@ const SupplyItem: React.FC<SupplyItemProps> = ({
   }, [amount, id, onUpdateCurrentAmount]);
 
   const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newAmount = parseFloat(e.target.value);
-    setAmount(isNaN(newAmount) ? 0 : newAmount);
+    const newValue = e.target.value;
+    setInputValue(newValue);
+    
+    // Only update the numeric amount if the input is valid
+    const newAmount = parseFloat(newValue);
+    if (!isNaN(newAmount)) {
+      setAmount(newAmount);
+    } else if (newValue === '') {
+      setAmount(0);
+    }
   };
 
   return (
@@ -64,11 +73,12 @@ const SupplyItem: React.FC<SupplyItemProps> = ({
         <div className="flex items-center">
           <span className="text-sm text-gray-500 min-w-[120px]">What I Have:</span>
           <Input
-            type="number"
-            value={amount}
+            type="text"
+            inputMode="decimal"
+            value={inputValue}
             onChange={handleAmountChange}
             className="w-20 h-8 text-center"
-            min="0"
+            placeholder="0"
             step="0.5"
           />
           <span className="ml-1 text-gray-500">{unit}</span>
