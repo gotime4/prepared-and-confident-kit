@@ -156,8 +156,7 @@ const PrepReport = () => {
                       foodProgress > 0 ? 'text-amber-500' : 'text-gray-500'
                     }`}>{foodProgress}%</span>
                   </div>
-                  <Progress value={foodProgress} className="h-2" 
-                    indicatorClassName={getStatusColor(foodProgress)} />
+                  <Progress value={foodProgress} className={`h-2 ${getStatusColor(foodProgress)}`} />
                   <div className="mt-1 text-xs text-right text-gray-500">
                     {getStatusText(foodProgress)}
                   </div>
@@ -184,8 +183,7 @@ const PrepReport = () => {
                           <span>{category}</span>
                           <span>{catProgress}%</span>
                         </div>
-                        <Progress value={catProgress} className="h-1.5" 
-                          indicatorClassName={getStatusColor(catProgress)} />
+                        <Progress value={catProgress} className={`h-1.5 ${getStatusColor(catProgress)}`} />
                       </div>
                     );
                   })}
@@ -213,8 +211,7 @@ const PrepReport = () => {
                       kitProgress > 0 ? 'text-amber-500' : 'text-gray-500'
                     }`}>{kitProgress}%</span>
                   </div>
-                  <Progress value={kitProgress} className="h-2" 
-                    indicatorClassName={getStatusColor(kitProgress)} />
+                  <Progress value={kitProgress} className={`h-2 ${getStatusColor(kitProgress)}`} />
                   <div className="mt-1 text-xs text-right text-gray-500">
                     {getStatusText(kitProgress)}
                   </div>
@@ -241,8 +238,7 @@ const PrepReport = () => {
                           <span>{category}</span>
                           <span>{catProgress}%</span>
                         </div>
-                        <Progress value={catProgress} className="h-1.5" 
-                          indicatorClassName={getStatusColor(catProgress)} />
+                        <Progress value={catProgress} className={`h-1.5 ${getStatusColor(catProgress)}`} />
                       </div>
                     );
                   })}
@@ -284,8 +280,7 @@ const PrepReport = () => {
                         <span>{item.currentAmount} of {item.recommendedAmount} {item.unit}</span>
                         <span className="font-medium">{progress}%</span>
                       </div>
-                      <Progress value={progress} className="h-1.5" 
-                        indicatorClassName={getStatusColor(progress)} />
+                      <Progress value={progress} className={`h-1.5 ${getStatusColor(progress)}`} />
                     </div>
                     {progress < 100 && (
                       <div className="ml-4">

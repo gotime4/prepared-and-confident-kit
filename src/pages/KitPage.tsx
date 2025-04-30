@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { 
   Accordion,
@@ -215,12 +214,11 @@ const KitPage = () => {
                     </div>
                     <Progress 
                       value={calculateKitProgress()} 
-                      className="h-2"
-                      indicatorClassName={
+                      className={`h-2 ${
                         calculateKitProgress() >= 100 ? "bg-green-500" :
                         calculateKitProgress() >= 50 ? "bg-sky-500" : 
                         calculateKitProgress() > 0 ? "bg-amber-500" : "bg-gray-300"
-                      }
+                      }`}
                     />
                   </div>
                 </CardContent>

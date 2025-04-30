@@ -85,8 +85,7 @@ const SupplyItem: React.FC<SupplyItemProps> = ({
         </div>
         <Progress 
           value={progress} 
-          className="h-2 bg-gray-100" 
-          indicatorClassName={getProgressColor()}
+          className={`h-2 bg-gray-100 ${getProgressColor()}`}
         />
         <span className={`text-xs mt-1 self-end
           ${progress >= 100 ? 'text-green-500' : 

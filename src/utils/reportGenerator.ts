@@ -1,12 +1,12 @@
 
 import { SupplyItem } from "../contexts/SupplyContext";
 import { jsPDF } from "jspdf";
-import "jspdf-autotable";
+import autoTable from 'jspdf-autotable';
 
 // Extend jsPDF with autoTable plugin
 declare module "jspdf" {
   interface jsPDF {
-    autoTable: (options: any) => jsPDF;
+    autoTable: typeof autoTable;
   }
 }
 
@@ -57,14 +57,19 @@ export const generatePDF = (
     getStatusText(item.currentAmount, item.recommendedAmount)
   ]);
   
+  let yPos = 70;
+  
   doc.autoTable({
-    startY: 70,
+    startY: yPos,
     head: [["Category", "Item", "Recommended", "You Have", "Progress", "Status"]],
     body: foodData,
     headStyles: { fillColor: [176, 196, 222] },
     alternateRowStyles: { fillColor: [240, 248, 255] },
     margin: { top: 70 }
   });
+  
+  // Get the final Y position after the table
+  yPos = (doc as any).lastAutoTable.finalY + 10;
 
   // Top Priority Suggestions
   const priorityNames = priorities
@@ -73,15 +78,20 @@ export const generatePDF = (
     .join(", ");
   
   if (priorityNames) {
-    doc.text(`Top Priority Suggestions: ${priorityNames}`, 20, doc.autoTable.previous.finalY + 10);
+    doc.text(`Top Priority Suggestions: ${priorityNames}`, 20, yPos);
+    yPos += 15;
+  } else {
+    yPos += 5;
   }
 
   // Section 2: 72-Hour Emergency Kit
   doc.setFontSize(16);
-  doc.text("Section 2: 72-Hour Emergency Kit", 20, doc.autoTable.previous.finalY + 25);
+  doc.text("Section 2: 72-Hour Emergency Kit", 20, yPos);
+  yPos += 10;
   
   doc.setFontSize(10);
-  doc.text("Here's how your short-term emergency supply is shaping up.", 20, doc.autoTable.previous.finalY + 10);
+  doc.text("Here's how your short-term emergency supply is shaping up.", 20, yPos);
+  yPos += 10;
   
   // Kit data table
   const kitData = kitItems.map(item => [
@@ -94,29 +104,39 @@ export const generatePDF = (
   ]);
   
   doc.autoTable({
-    startY: doc.autoTable.previous.finalY + 15,
+    startY: yPos,
     head: [["Category", "Item", "Recommended", "You Have", "Progress", "Status"]],
     body: kitData,
     headStyles: { fillColor: [176, 196, 222] },
     alternateRowStyles: { fillColor: [240, 248, 255] },
-    margin: { top: doc.autoTable.previous.finalY + 15 }
+    margin: { top: yPos }
   });
+  
+  // Get the final Y position after the table
+  yPos = (doc as any).lastAutoTable.finalY + 15;
 
   // Section 3: Summary
   doc.setFontSize(16);
-  doc.text("Section 3: Summary", 20, doc.autoTable.previous.finalY + 25);
+  doc.text("Section 3: Summary", 20, yPos);
+  yPos += 10;
   
   doc.setFontSize(10);
-  doc.text(`■ Fully Prepared Categories: ${statusCounts.complete}`, 20, doc.autoTable.previous.finalY + 10);
-  doc.text(`■ In Progress Categories: ${statusCounts.inProgress}`, 20, doc.autoTable.previous.finalY + 15);
-  doc.text(`■ Not Started Categories: ${statusCounts.notStarted}`, 20, doc.autoTable.previous.finalY + 20);
+  doc.text(`■ Fully Prepared Categories: ${statusCounts.complete}`, 20, yPos);
+  yPos += 5;
   
-  doc.text(`Your Overall Readiness Score: ${overallScore}%`, 20, doc.autoTable.previous.finalY + 30);
+  doc.text(`■ In Progress Categories: ${statusCounts.inProgress}`, 20, yPos);
+  yPos += 5;
+  
+  doc.text(`■ Not Started Categories: ${statusCounts.notStarted}`, 20, yPos);
+  yPos += 10;
+  
+  doc.text(`Your Overall Readiness Score: ${overallScore}%`, 20, yPos);
+  yPos += 10;
   
   doc.text(
     "You're making great progress! Focus on the high-need items above to strengthen your family's readiness.",
     20,
-    doc.autoTable.previous.finalY + 40
+    yPos
   );
 
   // Save the PDF
