@@ -14,8 +14,64 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "@/components/ui/use-toast";
 import { Progress } from "@/components/ui/progress";
 
+// Base amounts for 1 person (per year)
+const BASE_AMOUNTS = {
+  // Grains
+  "wheat": 60,
+  "rice": 40,
+  "oats": 20,
+  "pasta": 15,
+  
+  // Legumes
+  "black-beans": 10,
+  "pinto-beans": 10,
+  "lentils": 8,
+  "split-peas": 5,
+  
+  // Fats & Oils
+  "vegetable-oil": 3,
+  "shortening": 3,
+  "peanut-butter": 5,
+  
+  // Sugars
+  "white-sugar": 20,
+  "brown-sugar": 5,
+  "honey": 5,
+  
+  // Canned Proteins
+  "tuna": 12,
+  "chicken": 12,
+  "salmon": 6,
+  "beef": 6,
+  
+  // Canned Fruits
+  "peaches": 12,
+  "pears": 12,
+  "pineapple": 12,
+  "applesauce": 12,
+  
+  // Canned Vegetables
+  "green-beans": 12,
+  "corn": 12,
+  "carrots": 12,
+  "tomatoes": 12,
+  "peas": 12,
+  "mixed-vegetables": 12,
+  
+  // Dried Items
+  "raisins": 5,
+  "apricots": 3,
+  "apple-slices": 3,
+  "banana-chips": 2
+};
+
 const FoodStorage = () => {
-  const [peopleCount, setPeopleCount] = useState(1);
+  // Initialize peopleCount from localStorage or default to 1
+  const [peopleCount, setPeopleCount] = useState(() => {
+    const savedPeopleCount = localStorage.getItem('foodPeopleCount');
+    return savedPeopleCount ? parseInt(savedPeopleCount) : 1;
+  });
+
   const { 
     foodItems: contextFoodItems, 
     updateFoodItem, 
@@ -24,87 +80,85 @@ const FoodStorage = () => {
   } = useSupply();
   const [foodItems, setFoodItems] = useState<SupplyItem[]>([]);
   
-  // Initialize food items with recommended quantities
+  // Calculate the recommended amount for an item based on the number of people
+  const calculateRecommendedAmount = (itemId: string, people: number) => {
+    return (BASE_AMOUNTS[itemId as keyof typeof BASE_AMOUNTS] || 0) * people;
+  };
+
   useEffect(() => {
-    // Only initialize if we don't have items from context
+    // If we don't have any items from context yet, initialize them
     if (contextFoodItems.length === 0) {
       const initialItems: SupplyItem[] = [
         // Grains
-        { id: "wheat", name: "Wheat", recommendedAmount: 60 * peopleCount, currentAmount: 0, unit: "lbs", category: "Grains", type: "food" },
-        { id: "rice", name: "White Rice", recommendedAmount: 40 * peopleCount, currentAmount: 0, unit: "lbs", category: "Grains", type: "food" },
-        { id: "oats", name: "Rolled Oats", recommendedAmount: 20 * peopleCount, currentAmount: 0, unit: "lbs", category: "Grains", type: "food" },
-        { id: "pasta", name: "Pasta", recommendedAmount: 15 * peopleCount, currentAmount: 0, unit: "lbs", category: "Grains", type: "food" },
+        { id: "wheat", name: "Wheat", recommendedAmount: calculateRecommendedAmount("wheat", peopleCount), currentAmount: 0, unit: "lbs", category: "Grains", type: "food" },
+        { id: "rice", name: "White Rice", recommendedAmount: calculateRecommendedAmount("rice", peopleCount), currentAmount: 0, unit: "lbs", category: "Grains", type: "food" },
+        { id: "oats", name: "Rolled Oats", recommendedAmount: calculateRecommendedAmount("oats", peopleCount), currentAmount: 0, unit: "lbs", category: "Grains", type: "food" },
+        { id: "pasta", name: "Pasta", recommendedAmount: calculateRecommendedAmount("pasta", peopleCount), currentAmount: 0, unit: "lbs", category: "Grains", type: "food" },
         
         // Legumes
-        { id: "black-beans", name: "Black Beans", recommendedAmount: 10 * peopleCount, currentAmount: 0, unit: "lbs", category: "Legumes", type: "food" },
-        { id: "pinto-beans", name: "Pinto Beans", recommendedAmount: 10 * peopleCount, currentAmount: 0, unit: "lbs", category: "Legumes", type: "food" },
-        { id: "lentils", name: "Lentils", recommendedAmount: 8 * peopleCount, currentAmount: 0, unit: "lbs", category: "Legumes", type: "food" },
-        { id: "split-peas", name: "Split Peas", recommendedAmount: 5 * peopleCount, currentAmount: 0, unit: "lbs", category: "Legumes", type: "food" },
+        { id: "black-beans", name: "Black Beans", recommendedAmount: calculateRecommendedAmount("black-beans", peopleCount), currentAmount: 0, unit: "lbs", category: "Legumes", type: "food" },
+        { id: "pinto-beans", name: "Pinto Beans", recommendedAmount: calculateRecommendedAmount("pinto-beans", peopleCount), currentAmount: 0, unit: "lbs", category: "Legumes", type: "food" },
+        { id: "lentils", name: "Lentils", recommendedAmount: calculateRecommendedAmount("lentils", peopleCount), currentAmount: 0, unit: "lbs", category: "Legumes", type: "food" },
+        { id: "split-peas", name: "Split Peas", recommendedAmount: calculateRecommendedAmount("split-peas", peopleCount), currentAmount: 0, unit: "lbs", category: "Legumes", type: "food" },
         
         // Fats & Oils
-        { id: "vegetable-oil", name: "Vegetable Oil", recommendedAmount: 3 * peopleCount, currentAmount: 0, unit: "gallons", category: "Fats & Oils", type: "food" },
-        { id: "shortening", name: "Shortening", recommendedAmount: 3 * peopleCount, currentAmount: 0, unit: "lbs", category: "Fats & Oils", type: "food" },
-        { id: "peanut-butter", name: "Peanut Butter", recommendedAmount: 5 * peopleCount, currentAmount: 0, unit: "lbs", category: "Fats & Oils", type: "food" },
+        { id: "vegetable-oil", name: "Vegetable Oil", recommendedAmount: calculateRecommendedAmount("vegetable-oil", peopleCount), currentAmount: 0, unit: "gallons", category: "Fats & Oils", type: "food" },
+        { id: "shortening", name: "Shortening", recommendedAmount: calculateRecommendedAmount("shortening", peopleCount), currentAmount: 0, unit: "lbs", category: "Fats & Oils", type: "food" },
+        { id: "peanut-butter", name: "Peanut Butter", recommendedAmount: calculateRecommendedAmount("peanut-butter", peopleCount), currentAmount: 0, unit: "lbs", category: "Fats & Oils", type: "food" },
         
         // Sugars
-        { id: "white-sugar", name: "White Sugar", recommendedAmount: 20 * peopleCount, currentAmount: 0, unit: "lbs", category: "Sugars", type: "food" },
-        { id: "brown-sugar", name: "Brown Sugar", recommendedAmount: 5 * peopleCount, currentAmount: 0, unit: "lbs", category: "Sugars", type: "food" },
-        { id: "honey", name: "Honey", recommendedAmount: 5 * peopleCount, currentAmount: 0, unit: "lbs", category: "Sugars", type: "food" },
+        { id: "white-sugar", name: "White Sugar", recommendedAmount: calculateRecommendedAmount("white-sugar", peopleCount), currentAmount: 0, unit: "lbs", category: "Sugars", type: "food" },
+        { id: "brown-sugar", name: "Brown Sugar", recommendedAmount: calculateRecommendedAmount("brown-sugar", peopleCount), currentAmount: 0, unit: "lbs", category: "Sugars", type: "food" },
+        { id: "honey", name: "Honey", recommendedAmount: calculateRecommendedAmount("honey", peopleCount), currentAmount: 0, unit: "lbs", category: "Sugars", type: "food" },
         
         // Canned Proteins
-        { id: "tuna", name: "Tuna", recommendedAmount: 12 * peopleCount, currentAmount: 0, unit: "cans", category: "Canned Proteins", type: "food" },
-        { id: "chicken", name: "Chicken", recommendedAmount: 12 * peopleCount, currentAmount: 0, unit: "cans", category: "Canned Proteins", type: "food" },
-        { id: "salmon", name: "Salmon", recommendedAmount: 6 * peopleCount, currentAmount: 0, unit: "cans", category: "Canned Proteins", type: "food" },
-        { id: "beef", name: "Beef", recommendedAmount: 6 * peopleCount, currentAmount: 0, unit: "cans", category: "Canned Proteins", type: "food" },
+        { id: "tuna", name: "Tuna", recommendedAmount: calculateRecommendedAmount("tuna", peopleCount), currentAmount: 0, unit: "cans", category: "Canned Proteins", type: "food" },
+        { id: "chicken", name: "Chicken", recommendedAmount: calculateRecommendedAmount("chicken", peopleCount), currentAmount: 0, unit: "cans", category: "Canned Proteins", type: "food" },
+        { id: "salmon", name: "Salmon", recommendedAmount: calculateRecommendedAmount("salmon", peopleCount), currentAmount: 0, unit: "cans", category: "Canned Proteins", type: "food" },
+        { id: "beef", name: "Beef", recommendedAmount: calculateRecommendedAmount("beef", peopleCount), currentAmount: 0, unit: "cans", category: "Canned Proteins", type: "food" },
         
         // Canned Fruits
-        { id: "peaches", name: "Peaches", recommendedAmount: 12 * peopleCount, currentAmount: 0, unit: "cans", category: "Canned Fruits", type: "food" },
-        { id: "pears", name: "Pears", recommendedAmount: 12 * peopleCount, currentAmount: 0, unit: "cans", category: "Canned Fruits", type: "food" },
-        { id: "pineapple", name: "Pineapple", recommendedAmount: 12 * peopleCount, currentAmount: 0, unit: "cans", category: "Canned Fruits", type: "food" },
-        { id: "applesauce", name: "Applesauce", recommendedAmount: 12 * peopleCount, currentAmount: 0, unit: "cans", category: "Canned Fruits", type: "food" },
+        { id: "peaches", name: "Peaches", recommendedAmount: calculateRecommendedAmount("peaches", peopleCount), currentAmount: 0, unit: "cans", category: "Canned Fruits", type: "food" },
+        { id: "pears", name: "Pears", recommendedAmount: calculateRecommendedAmount("pears", peopleCount), currentAmount: 0, unit: "cans", category: "Canned Fruits", type: "food" },
+        { id: "pineapple", name: "Pineapple", recommendedAmount: calculateRecommendedAmount("pineapple", peopleCount), currentAmount: 0, unit: "cans", category: "Canned Fruits", type: "food" },
+        { id: "applesauce", name: "Applesauce", recommendedAmount: calculateRecommendedAmount("applesauce", peopleCount), currentAmount: 0, unit: "cans", category: "Canned Fruits", type: "food" },
         
         // Canned Vegetables
-        { id: "green-beans", name: "Green Beans", recommendedAmount: 12 * peopleCount, currentAmount: 0, unit: "cans", category: "Canned Vegetables", type: "food" },
-        { id: "corn", name: "Corn", recommendedAmount: 12 * peopleCount, currentAmount: 0, unit: "cans", category: "Canned Vegetables", type: "food" },
-        { id: "carrots", name: "Carrots", recommendedAmount: 12 * peopleCount, currentAmount: 0, unit: "cans", category: "Canned Vegetables", type: "food" },
-        { id: "tomatoes", name: "Tomatoes", recommendedAmount: 12 * peopleCount, currentAmount: 0, unit: "cans", category: "Canned Vegetables", type: "food" },
-        { id: "peas", name: "Peas", recommendedAmount: 12 * peopleCount, currentAmount: 0, unit: "cans", category: "Canned Vegetables", type: "food" },
-        { id: "mixed-vegetables", name: "Mixed Vegetables", recommendedAmount: 12 * peopleCount, currentAmount: 0, unit: "cans", category: "Canned Vegetables", type: "food" },
+        { id: "green-beans", name: "Green Beans", recommendedAmount: calculateRecommendedAmount("green-beans", peopleCount), currentAmount: 0, unit: "cans", category: "Canned Vegetables", type: "food" },
+        { id: "corn", name: "Corn", recommendedAmount: calculateRecommendedAmount("corn", peopleCount), currentAmount: 0, unit: "cans", category: "Canned Vegetables", type: "food" },
+        { id: "carrots", name: "Carrots", recommendedAmount: calculateRecommendedAmount("carrots", peopleCount), currentAmount: 0, unit: "cans", category: "Canned Vegetables", type: "food" },
+        { id: "tomatoes", name: "Tomatoes", recommendedAmount: calculateRecommendedAmount("tomatoes", peopleCount), currentAmount: 0, unit: "cans", category: "Canned Vegetables", type: "food" },
+        { id: "peas", name: "Peas", recommendedAmount: calculateRecommendedAmount("peas", peopleCount), currentAmount: 0, unit: "cans", category: "Canned Vegetables", type: "food" },
+        { id: "mixed-vegetables", name: "Mixed Vegetables", recommendedAmount: calculateRecommendedAmount("mixed-vegetables", peopleCount), currentAmount: 0, unit: "cans", category: "Canned Vegetables", type: "food" },
         
         // Dried Items
-        { id: "raisins", name: "Raisins", recommendedAmount: 5 * peopleCount, currentAmount: 0, unit: "lbs", category: "Dried Fruits", type: "food" },
-        { id: "apricots", name: "Apricots", recommendedAmount: 3 * peopleCount, currentAmount: 0, unit: "lbs", category: "Dried Fruits", type: "food" },
-        { id: "apple-slices", name: "Apple Slices", recommendedAmount: 3 * peopleCount, currentAmount: 0, unit: "lbs", category: "Dried Fruits", type: "food" },
-        { id: "banana-chips", name: "Banana Chips", recommendedAmount: 2 * peopleCount, currentAmount: 0, unit: "lbs", category: "Dried Fruits", type: "food" }
+        { id: "raisins", name: "Raisins", recommendedAmount: calculateRecommendedAmount("raisins", peopleCount), currentAmount: 0, unit: "lbs", category: "Dried Fruits", type: "food" },
+        { id: "apricots", name: "Apricots", recommendedAmount: calculateRecommendedAmount("apricots", peopleCount), currentAmount: 0, unit: "lbs", category: "Dried Fruits", type: "food" },
+        { id: "apple-slices", name: "Apple Slices", recommendedAmount: calculateRecommendedAmount("apple-slices", peopleCount), currentAmount: 0, unit: "lbs", category: "Dried Fruits", type: "food" },
+        { id: "banana-chips", name: "Banana Chips", recommendedAmount: calculateRecommendedAmount("banana-chips", peopleCount), currentAmount: 0, unit: "lbs", category: "Dried Fruits", type: "food" },
       ];
       
       // Initialize the food items in the context
       initializeFoodItems(initialItems);
-      // Also set them in the local state
       setFoodItems(initialItems);
     } else {
-      // If we have items from context, use those
-      setFoodItems(contextFoodItems);
+      // Update the recommended amounts based on the current number of people
+      const updatedItems = contextFoodItems.map(item => ({
+        ...item,
+        recommendedAmount: calculateRecommendedAmount(item.id, peopleCount)
+      }));
+      
+      setFoodItems(updatedItems);
+      // Update the context with the new recommended amounts
+      updateFoodItemsRecommendedAmounts(updatedItems);
     }
-  }, [contextFoodItems, peopleCount, initializeFoodItems]);
+  }, [peopleCount, contextFoodItems, initializeFoodItems, updateFoodItemsRecommendedAmounts]);
 
   const handleQuantityChange = (newCount: number) => {
-    // Update local state first for immediate UI feedback
-    const updatedItems = foodItems.map(item => {
-      const baseAmount = item.recommendedAmount / peopleCount;
-      return {
-        ...item,
-        recommendedAmount: baseAmount * newCount
-      };
-    });
+    // Save the people count to localStorage
+    localStorage.setItem('foodPeopleCount', newCount.toString());
     
-    // Update local state
-    setFoodItems(updatedItems);
-    
-    // Update context state to keep it in sync
-    updateFoodItemsRecommendedAmounts(updatedItems);
-    
-    // Update people count
+    // Update the people count - this will trigger the useEffect above
     setPeopleCount(newCount);
 
     toast({
