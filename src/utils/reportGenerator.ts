@@ -23,7 +23,7 @@ export const generatePDF = (
     });
 
     // Add header
-    doc.setFontSize(24);
+    doc.setFontSize(22);
     doc.text("Family Readiness Report", 105, 20, { align: "center" });
     
     doc.setFontSize(12);
@@ -33,12 +33,12 @@ export const generatePDF = (
     doc.text(`Date Generated: ${dateGenerated}`, 20, 40);
     doc.text("Prepared For: Your Household", 20, 45);
 
-    let yPos = 55;
+    let yPos = 50; // Starting position closer to the top
 
     // Section 1: Long-Term Food Storage
-    doc.setFontSize(16);
+    doc.setFontSize(14);
     doc.text("Section 1: Long-Term Food Storage Overview", 20, yPos);
-    yPos += 10;
+    yPos += 8; // Reduced spacing
     
     doc.setFontSize(10);
     doc.text(
@@ -46,7 +46,7 @@ export const generatePDF = (
       20,
       yPos
     );
-    yPos += 10;
+    yPos += 6; // Reduced spacing
     
     // Food storage data table
     const foodData = foodItems.length > 0 ? foodItems.map(item => [
@@ -58,45 +58,53 @@ export const generatePDF = (
       getStatusText(item.currentAmount, item.recommendedAmount)
     ]) : [["No data", "-", "-", "-", "-", "-"]];
     
-    // Use autoTable directly instead of as a method
+    // Use autoTable directly with optimized spacing
     autoTable(doc, {
       head: [["Category", "Item", "Recommended", "You Have", "Progress", "Status"]],
       body: foodData,
       startY: yPos,
       headStyles: { fillColor: [176, 196, 222] },
       alternateRowStyles: { fillColor: [240, 248, 255] },
-      margin: { top: yPos }
+      margin: { top: yPos },
+      styles: { cellPadding: 2 }, // Reduced cell padding
+      rowPageBreak: 'avoid',      // Avoid rows breaking across pages
+      didDrawPage: (data) => {    // Header and footer handling
+        // Add page number at the bottom
+        doc.setFontSize(8);
+        const pageCount = doc.getNumberOfPages();
+        for (let i = 1; i <= pageCount; i++) {
+          doc.setPage(i);
+          doc.text(`Page ${i} of ${pageCount}`, doc.internal.pageSize.width / 2, doc.internal.pageSize.height - 10, { align: 'center' });
+        }
+      }
     });
     
     // Get the final Y position after the table
-    yPos = (doc as any).lastAutoTable.finalY + 10;
+    yPos = (doc as any).lastAutoTable.finalY + 5; // Reduced spacing after table
 
     // Top Priority Suggestions
     if (priorities.length > 0) {
-      const priorityNames = priorities
-        .filter(item => item.type === 'food')
-        .map(item => item.name)
-        .join(", ");
-      
-      if (priorityNames) {
+      const foodPriorities = priorities.filter(item => item.type === 'food');
+      if (foodPriorities.length > 0) {
+        const priorityNames = foodPriorities.map(item => item.name).join(", ");
         doc.text(`Top Priority Suggestions: ${priorityNames}`, 20, yPos);
-        yPos += 15;
+        yPos += 8; // Reduced spacing
       } else {
-        yPos += 5;
+        yPos += 3; // Even less spacing if no priorities
       }
     } else {
       doc.text("No priority items identified yet.", 20, yPos);
-      yPos += 15;
+      yPos += 8; // Reduced spacing
     }
 
     // Section 2: 72-Hour Emergency Kit
-    doc.setFontSize(16);
+    doc.setFontSize(14);
     doc.text("Section 2: 72-Hour Emergency Kit", 20, yPos);
-    yPos += 10;
+    yPos += 8; // Reduced spacing
     
     doc.setFontSize(10);
     doc.text("Here's how your short-term emergency supply is shaping up.", 20, yPos);
-    yPos += 10;
+    yPos += 6; // Reduced spacing
     
     // Kit data table
     const kitData = kitItems.length > 0 ? kitItems.map(item => [
@@ -108,23 +116,25 @@ export const generatePDF = (
       getStatusText(item.currentAmount, item.recommendedAmount)
     ]) : [["No data", "-", "-", "-", "-", "-"]];
     
-    // Use autoTable directly instead of as a method
+    // Use autoTable directly with optimized spacing
     autoTable(doc, {
       head: [["Category", "Item", "Recommended", "You Have", "Progress", "Status"]],
       body: kitData,
       startY: yPos,
       headStyles: { fillColor: [176, 196, 222] },
       alternateRowStyles: { fillColor: [240, 248, 255] },
-      margin: { top: yPos }
+      margin: { top: yPos },
+      styles: { cellPadding: 2 }, // Reduced cell padding
+      rowPageBreak: 'avoid'       // Avoid rows breaking across pages
     });
     
     // Get the final Y position after the table
-    yPos = (doc as any).lastAutoTable.finalY + 15;
+    yPos = (doc as any).lastAutoTable.finalY + 8; // Reduced spacing after table
 
     // Section 3: Summary
-    doc.setFontSize(16);
+    doc.setFontSize(14);
     doc.text("Section 3: Summary", 20, yPos);
-    yPos += 10;
+    yPos += 8; // Reduced spacing
     
     doc.setFontSize(10);
     doc.text(`■ Fully Prepared Categories: ${statusCounts.complete}`, 20, yPos);
@@ -134,11 +144,13 @@ export const generatePDF = (
     yPos += 5;
     
     doc.text(`■ Not Started Categories: ${statusCounts.notStarted}`, 20, yPos);
-    yPos += 10;
+    yPos += 8; // Slightly larger spacing before overall score
     
+    doc.setFontSize(12); // Slightly larger font for the score
     doc.text(`Your Overall Readiness Score: ${overallScore}%`, 20, yPos);
-    yPos += 10;
+    yPos += 8;
     
+    doc.setFontSize(10);
     doc.text(
       "You're making great progress! Focus on the high-need items above to strengthen your family's readiness.",
       20,
