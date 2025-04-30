@@ -1,6 +1,10 @@
 import { SupplyItem } from "../contexts/SupplyContext";
 import { jsPDF } from "jspdf";
-import 'jspdf-autotable';
+// Import autoTable directly (fix for missing autoTable function)
+import autoTable from 'jspdf-autotable';
+
+// Add the autoTable method to the jsPDF instance
+jsPDF.prototype.autoTable = autoTable;
 
 export const generatePDF = (
   foodItems: SupplyItem[],
@@ -52,10 +56,10 @@ export const generatePDF = (
       `${item.currentAmount} ${item.unit}`,
       `${Math.min(Math.floor((item.currentAmount / item.recommendedAmount) * 100), 100)}%`,
       getStatusText(item.currentAmount, item.recommendedAmount)
-    ]) : [["No data", "", "", "", "", ""]];
+    ]) : [["No data", "-", "-", "-", "-", "-"]];
     
-    // Only add table if we have food items
-    doc.autoTable({
+    // Use autoTable directly instead of as a method
+    autoTable(doc, {
       head: [["Category", "Item", "Recommended", "You Have", "Progress", "Status"]],
       body: foodData,
       startY: yPos,
@@ -102,9 +106,10 @@ export const generatePDF = (
       `${item.currentAmount} ${item.unit === 'quantity' ? '' : item.unit}`,
       `${Math.min(Math.floor((item.currentAmount / item.recommendedAmount) * 100), 100)}%`,
       getStatusText(item.currentAmount, item.recommendedAmount)
-    ]) : [["No data", "", "", "", "", ""]];
+    ]) : [["No data", "-", "-", "-", "-", "-"]];
     
-    doc.autoTable({
+    // Use autoTable directly instead of as a method
+    autoTable(doc, {
       head: [["Category", "Item", "Recommended", "You Have", "Progress", "Status"]],
       body: kitData,
       startY: yPos,
