@@ -1,6 +1,7 @@
+
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { Box, Utensils, Droplets, Menu, X, ExternalLink } from "lucide-react";
+import { Box, Utensils, Droplets, Menu, X, ExternalLink, FileText } from "lucide-react";
 
 interface NavLinkProps {
   to: string;
@@ -64,6 +65,7 @@ const Navbar = () => {
             <NavLink to="/kit" icon={<Box size={18} />} label="72-Hour Kits" isScrolled={isScrolled} />
             <NavLink to="/food" icon={<Utensils size={18} />} label="Food Storage" isScrolled={isScrolled} />
             <NavLink to="/water" icon={<Droplets size={18} />} label="Water Storage" isScrolled={isScrolled} />
+            <NavLink to="/report" icon={<FileText size={18} />} label="Readiness Report" isScrolled={isScrolled} />
             <NavLink to="/resources" icon={<ExternalLink size={18} />} label="Resources" isScrolled={isScrolled} />
           </nav>
 
@@ -105,6 +107,12 @@ const Navbar = () => {
             <div className="flex items-center space-x-2">
               <Droplets size={18} />
               <span>Water Storage</span>
+            </div>
+          </Link>
+          <Link to="/report" className="block py-2 px-4 text-gray-900 hover:bg-gray-100 rounded-md">
+            <div className="flex items-center space-x-2">
+              <FileText size={18} />
+              <span>Readiness Report</span>
             </div>
           </Link>
           <Link to="/resources" className="block py-2 px-4 text-gray-900 hover:bg-gray-100 rounded-md">
