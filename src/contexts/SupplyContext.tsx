@@ -254,17 +254,33 @@ export const SupplyProvider: React.FC<SupplyProviderProps> = ({ children }) => {
 
   // Update a food item's current amount
   const updateFoodItem = (id: string, amount: number) => {
-    setFoodItems(prev => 
-      prev.map(item => 
+    console.log(`Updating food item ${id} to amount ${amount}`);
+    
+    // Update state with a new array reference to ensure React detects the change
+    setFoodItems(prev => {
+      const updated = prev.map(item => 
         item.id === id ? { ...item, currentAmount: amount } : item
-      )
-    );
+      );
+      
+      // Force save to database on next tick to ensure the state is updated
+      setTimeout(() => {
+        if (isAuthenticated && isDataLoaded) {
+          console.log(`Triggering database save for food item ${id}`);
+          saveDataToDb();
+        }
+      }, 100);
+      
+      return updated;
+    });
   };
 
   // Update a kit item's current amount
   const updateKitItem = (id: string, amount: number, recommendedAmount?: number) => {
-    setKitItems(prev => 
-      prev.map(item => 
+    console.log(`Updating kit item ${id} to amount ${amount}`);
+    
+    // Update state with a new array reference to ensure React detects the change
+    setKitItems(prev => {
+      const updated = prev.map(item => 
         item.id === id ? 
           { 
             ...item, 
@@ -272,8 +288,18 @@ export const SupplyProvider: React.FC<SupplyProviderProps> = ({ children }) => {
             ...(recommendedAmount !== undefined && { recommendedAmount })
           } 
           : item
-      )
-    );
+      );
+      
+      // Force save to database on next tick to ensure the state is updated
+      setTimeout(() => {
+        if (isAuthenticated && isDataLoaded) {
+          console.log(`Triggering database save for kit item ${id}`);
+          saveDataToDb();
+        }
+      }, 100);
+      
+      return updated;
+    });
   };
 
   // Update recommended amounts for food items
