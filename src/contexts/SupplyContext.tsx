@@ -1,4 +1,8 @@
+
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { useAuth } from './AuthContext';
+import { fetchUserData, saveUserData } from '@/utils/apiUtils';
+import { toast } from "@/components/ui/use-toast";
 
 // Types for our supply items
 export interface SupplyItem {
@@ -24,6 +28,7 @@ interface SupplyContextType {
   getPriorities: () => SupplyItem[];
   getCompletedCount: () => { complete: number, inProgress: number, notStarted: number };
   getOverallScore: () => number;
+  isSyncing: boolean;
 }
 
 const SupplyContext = createContext<SupplyContextType | undefined>(undefined);
@@ -44,22 +49,89 @@ export const SupplyProvider: React.FC<SupplyProviderProps> = ({ children }) => {
   // Initialize with empty arrays
   const [foodItems, setFoodItems] = useState<SupplyItem[]>([]);
   const [kitItems, setKitItems] = useState<SupplyItem[]>([]);
+  const [isSyncing, setIsSyncing] = useState(false);
+  const { user, isAuthenticated } = useAuth();
 
-  // Load data from localStorage on component mount
+  // Function to save data to the database
+  const saveDataToDb = async () => {
+    if (!isAuthenticated || !user?.token) return;
+    
+    setIsSyncing(true);
+    try {
+      await saveUserData(user.token, {
+        kit: kitItems,
+        storage: foodItems,
+        report: null // For future report data
+      });
+    } catch (error) {
+      console.error('Failed to save data:', error);
+      toast({
+        title: "Sync Error",
+        description: "Failed to sync your data. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsSyncing(false);
+    }
+  };
+
+  // Load data from API when authenticated
   useEffect(() => {
-    const savedFoodItems = localStorage.getItem('foodItems');
-    const savedKitItems = localStorage.getItem('kitItems');
+    const loadData = async () => {
+      if (!isAuthenticated || !user?.token) return;
+      
+      setIsSyncing(true);
+      try {
+        const userData = await fetchUserData(user.token);
+        
+        if (userData.storage && userData.storage.length > 0) {
+          setFoodItems(userData.storage);
+        }
+        
+        if (userData.kit && userData.kit.length > 0) {
+          setKitItems(userData.kit);
+        }
+      } catch (error) {
+        console.error('Failed to load data:', error);
+        // Don't show error toast on initial load, just load from localStorage as fallback
+      } finally {
+        setIsSyncing(false);
+      }
+    };
     
-    if (savedFoodItems) {
-      setFoodItems(JSON.parse(savedFoodItems));
-    }
-    
-    if (savedKitItems) {
-      setKitItems(JSON.parse(savedKitItems));
-    }
-  }, []);
+    loadData();
+  }, [isAuthenticated, user]);
 
-  // Save to localStorage whenever items change
+  // Fallback to localStorage if no API data
+  useEffect(() => {
+    // Only load from localStorage if we don't have data from the API
+    if (foodItems.length === 0) {
+      const savedFoodItems = localStorage.getItem('foodItems');
+      if (savedFoodItems) {
+        setFoodItems(JSON.parse(savedFoodItems));
+      }
+    }
+    
+    if (kitItems.length === 0) {
+      const savedKitItems = localStorage.getItem('kitItems');
+      if (savedKitItems) {
+        setKitItems(JSON.parse(savedKitItems));
+      }
+    }
+  }, [foodItems.length, kitItems.length]);
+
+  // Save to database whenever items change and user is authenticated
+  useEffect(() => {
+    if (isAuthenticated && (foodItems.length > 0 || kitItems.length > 0)) {
+      const debounceTimer = setTimeout(() => {
+        saveDataToDb();
+      }, 1000); // Debounce to prevent too many API calls
+      
+      return () => clearTimeout(debounceTimer);
+    }
+  }, [foodItems, kitItems, isAuthenticated]);
+
+  // Also save to localStorage as fallback
   useEffect(() => {
     if (foodItems.length > 0) {
       localStorage.setItem('foodItems', JSON.stringify(foodItems));
@@ -190,6 +262,7 @@ export const SupplyProvider: React.FC<SupplyProviderProps> = ({ children }) => {
     getPriorities,
     getCompletedCount,
     getOverallScore,
+    isSyncing,
   };
 
   return (

@@ -1,4 +1,6 @@
+
 import { useAuth } from "@/contexts/AuthContext";
+import { useSupply } from "@/contexts/SupplyContext";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -21,6 +23,7 @@ import Footer from "@/components/Footer";
 
 export default function Account() {
   const { user, deleteAccount, isAuthenticated } = useAuth();
+  const { isSyncing } = useSupply();
   const navigate = useNavigate();
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [confirmText, setConfirmText] = useState("");
@@ -58,6 +61,13 @@ export default function Account() {
           <p className="text-center text-gray-600 max-w-3xl mx-auto">
             Manage your personal information and account preferences to ensure your preparedness data is secure.
           </p>
+          
+          {isSyncing && (
+            <div className="flex items-center justify-center mt-4 text-amber-600">
+              <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />
+              <span>Syncing your data...</span>
+            </div>
+          )}
         </div>
       </div>
       
