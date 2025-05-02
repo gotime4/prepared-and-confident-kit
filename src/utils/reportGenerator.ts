@@ -118,9 +118,9 @@ export const generatePDF = (reportData: ReportData): void => {
     startY: 160,
     head: [['Status', 'Count']],
     body: [
-      ['Complete', completedCounts.complete],
-      ['In Progress', completedCounts.inProgress],
-      ['Not Started', completedCounts.notStarted],
+      ['Complete', completionCounts.complete],
+      ['In Progress', completionCounts.inProgress],
+      ['Not Started', completionCounts.notStarted],
     ],
     headStyles: {
       fillColor: [15, 23, 42],
@@ -253,15 +253,14 @@ export const generatePDF = (reportData: ReportData): void => {
         // Draw progress bars in the last column
         if (data.column.index === 3 && data.section === 'body') {
           const progress = parseInt(data.cell.text[0].replace('%', ''));
-          const cellRect = data.cell.rect;
-          
-          // Draw the progress bar
-          const barX = cellRect.x + 5;
-          const barY = cellRect.y + cellRect.height - 8;
+          // Access the cell boundaries safely
+          const x = data.cell.x + 5;
+          const y = data.cell.y + data.cell.height - 8;
           const barWidth = 20;
           const barHeight = 4;
           
-          drawProgressBar(doc, barX, barY, barWidth, barHeight, progress);
+          // Draw the progress bar
+          drawProgressBar(doc, x, y, barWidth, barHeight, progress);
         }
       },
       didDrawPage: function(data) {

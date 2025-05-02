@@ -1,11 +1,10 @@
-
 import { useEffect, useState } from 'react';
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { useSupply } from "@/contexts/SupplyContext";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { FilePdf, Download, BarChart, PieChart } from "lucide-react";
+import { FileText, Download, BarChart2, PieChart } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { generatePDF } from "@/utils/reportGenerator";
@@ -174,7 +173,7 @@ const PrepReport = () => {
                 <>Generating...</>
               ) : (
                 <>
-                  <FilePdf className="mr-2 h-5 w-5" />
+                  <FileText className="mr-2 h-5 w-5" />
                   Download PDF Report
                 </>
               )}
