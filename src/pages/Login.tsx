@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
@@ -31,13 +30,9 @@ export default function Login() {
     if (!email || !password) return;
 
     setIsSubmitting(true);
-    const success = await login(email, password);
-    setIsSubmitting(false);
-
-    if (success) {
-      // Navigate to the page the user was trying to access or home
-      navigate(from);
-    }
+    await login(email, password);
+    // No need to handle navigation here anymore since we're doing a hard refresh in the login function
+    // The setIsSubmitting(false) is also not needed since the page will refresh
   };
 
   return (

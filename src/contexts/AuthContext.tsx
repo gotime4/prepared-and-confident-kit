@@ -124,6 +124,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             variant: "default"
           });
           
+          // Hard refresh the page after successful login
+          window.location.href = '/';
           return true;
         } else {
           toast({
@@ -191,6 +193,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             variant: "default"
           });
           
+          // Hard refresh the page after successful login
+          window.location.href = '/';
           return true;
         }
       } catch (error) {
@@ -213,6 +217,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         variant: "default"
       });
       
+      // Hard refresh the page after successful login
+      window.location.href = '/';
       return true;
     } catch (error) {
       console.error('Login error:', error);
