@@ -1,4 +1,3 @@
-
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { SupplyItem } from '@/contexts/SupplyContext';
@@ -118,9 +117,9 @@ export const generatePDF = (reportData: ReportData): void => {
     startY: 160,
     head: [['Status', 'Count']],
     body: [
-      ['Complete', completionCounts.complete],
-      ['In Progress', completionCounts.inProgress],
-      ['Not Started', completionCounts.notStarted],
+      ['Complete', completedCounts.complete],
+      ['In Progress', completedCounts.inProgress],
+      ['Not Started', completedCounts.notStarted],
     ],
     headStyles: {
       fillColor: [15, 23, 42],
