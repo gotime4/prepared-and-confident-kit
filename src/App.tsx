@@ -41,9 +41,15 @@ const App = () => (
               <Route path="/mission" element={<MissionPage />} />
               <Route path="/privacy" element={<PrivacyPolicy />} />
               <Route path="/terms" element={<TermsOfUse />} />
+              <Route path="/water" element={<WaterStorage />} />
+              <Route path="/resources" element={<TrustedResources />} />
               
               {/* Protected Routes */}
-              <Route path="/" element={<Index />} />
+              <Route path="/" element={
+                <ProtectedRoute>
+                  <Index />
+                </ProtectedRoute>
+              } />
               <Route path="/kit" element={
                 <ProtectedRoute>
                   <KitPage />
@@ -54,8 +60,6 @@ const App = () => (
                   <FoodStorage />
                 </ProtectedRoute>
               } />
-              <Route path="/water" element={<WaterStorage />} />
-              <Route path="/resources" element={<TrustedResources />} />
               <Route path="/report" element={
                 <ProtectedRoute>
                   <PrepReport />

@@ -1,3 +1,4 @@
+
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { toast } from "@/components/ui/use-toast";
 
@@ -54,23 +55,46 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         
         // Real authentication check with Worker API
         const response = await fetch(`${API_URL}/api/data`, {
-          credentials: 'include'
+          credentials: 'include',
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('auth_token')}`,
+            'Content-Type': 'application/json',
+          },
         });
         
         if (response.ok) {
           // If we can fetch user data, the user is authenticated
           const userData = await response.json();
-          // Get user info from localStorage (stored during login/signup)
-          const userInfo = JSON.parse(localStorage.getItem('user_info') || '{}');
           
-          if (userInfo.id) {
+          // Get user info from localStorage or from the API response
+          let userInfo;
+          const storedUserInfo = localStorage.getItem('user_info');
+          
+          if (storedUserInfo) {
+            userInfo = JSON.parse(storedUserInfo);
+          } else if (userData && userData.userId) {
+            // If no stored user info but API returns data, create user info
+            userInfo = {
+              id: userData.userId,
+              email: userData.email || '',
+              name: userData.name || userData.email?.split('@')[0] || 'User'
+            };
+            localStorage.setItem('user_info', JSON.stringify(userInfo));
+          }
+          
+          if (userInfo) {
             setUser(userInfo);
           }
+        } else {
+          // If unauthorized, clear any potentially invalid auth data
+          localStorage.removeItem('user_info');
+          localStorage.removeItem('auth_token');
         }
       } catch (error) {
         console.error('Auth check error:', error);
         // Clear any potentially invalid auth data
         localStorage.removeItem('user_info');
+        localStorage.removeItem('auth_token');
       } finally {
         setIsLoading(false);
       }
@@ -132,11 +156,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return false;
       }
       
+      // Store the auth token
+      if (data.token) {
+        localStorage.setItem('auth_token', data.token);
+      }
+      
       // Additional step to get user profile information
-      // In a real implementation, you might want to get more details about the user
       try {
         const userDataResponse = await fetch(`${API_URL}/api/data`, {
           credentials: 'include',
+          headers: {
+            'Authorization': `Bearer ${data.token || localStorage.getItem('auth_token')}`,
+            'Content-Type': 'application/json',
+          },
         });
         
         if (userDataResponse.ok) {
@@ -282,15 +314,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       // For real API, make a logout request to invalidate server-side session
       fetch(`${API_URL}/api/logout`, {
         method: 'POST',
-        credentials: 'include'
+        credentials: 'include',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('auth_token')}`,
+          'Content-Type': 'application/json',
+        }
       }).catch(err => console.error("Logout request error:", err));
     }
     
     localStorage.removeItem('user_info');
+    localStorage.removeItem('auth_token');
     setUser(null);
-    
-    // Optional: Clear cookie by setting an expired one
-    document.cookie = 'session=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
     
     toast({
       title: "Logged Out",
