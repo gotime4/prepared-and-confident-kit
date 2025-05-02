@@ -54,11 +54,14 @@ export const SupplyProvider: React.FC<SupplyProviderProps> = ({ children }) => {
 
   // Function to save data to the database
   const saveDataToDb = async () => {
-    if (!isAuthenticated || !user?.token) return;
+    if (!isAuthenticated || !user) return;
+    
+    const authToken = localStorage.getItem('auth_token');
+    if (!authToken) return;
     
     setIsSyncing(true);
     try {
-      await saveUserData(user.token, {
+      await saveUserData(authToken, {
         kit: kitItems,
         storage: foodItems,
         report: null // For future report data
@@ -78,11 +81,14 @@ export const SupplyProvider: React.FC<SupplyProviderProps> = ({ children }) => {
   // Load data from API when authenticated
   useEffect(() => {
     const loadData = async () => {
-      if (!isAuthenticated || !user?.token) return;
+      if (!isAuthenticated || !user) return;
+      
+      const authToken = localStorage.getItem('auth_token');
+      if (!authToken) return;
       
       setIsSyncing(true);
       try {
-        const userData = await fetchUserData(user.token);
+        const userData = await fetchUserData(authToken);
         
         if (userData.storage && userData.storage.length > 0) {
           setFoodItems(userData.storage);
