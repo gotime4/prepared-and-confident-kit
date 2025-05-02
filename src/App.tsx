@@ -32,8 +32,8 @@ const App = () => (
         <SupplyProvider>
           <Toaster />
           <Sonner />
-          <DataMigrationModal />
           <BrowserRouter>
+            <DataMigrationModal />
             <Routes>
               {/* Public Routes */}
               <Route path="/login" element={<Login />} />

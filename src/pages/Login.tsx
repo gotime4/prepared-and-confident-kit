@@ -14,11 +14,13 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Icons } from "@/components/icons";
+import { checkCryptoAvailability } from "@/utils/crypto";
 
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
   const { login } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
@@ -28,15 +30,34 @@ export default function Login() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email || !password) return;
+    if (!email || !password) {
+      setErrorMessage("Email and password are required");
+      return;
+    }
 
+    // Check if the Web Crypto API is available
+    if (!checkCryptoAvailability()) {
+      setErrorMessage("Your browser does not support secure login. Please use a modern browser.");
+      return;
+    }
+
+    setErrorMessage("");
     setIsSubmitting(true);
-    const success = await login(email, password);
-    setIsSubmitting(false);
-
-    if (success) {
-      // Navigate to the page the user was trying to access or home
-      navigate(from);
+    
+    try {
+      const success = await login(email, password);
+      
+      if (success) {
+        // Navigate to the page the user was trying to access or home
+        navigate(from);
+      } else {
+        setErrorMessage("Invalid email or password");
+      }
+    } catch (error) {
+      console.error("Login error:", error);
+      setErrorMessage("A login error occurred. Please try again.");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -55,6 +76,11 @@ export default function Login() {
         </CardHeader>
         <form onSubmit={handleSubmit}>
           <CardContent className="space-y-4">
+            {errorMessage && (
+              <div className="bg-destructive/15 text-destructive text-sm p-3 rounded-md">
+                {errorMessage}
+              </div>
+            )}
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
               <Input
