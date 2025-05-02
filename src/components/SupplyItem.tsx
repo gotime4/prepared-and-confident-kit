@@ -40,10 +40,13 @@ const SupplyItem: React.FC<SupplyItemProps> = ({
     return "bg-gray-300";
   };
 
-  // Update parent component when amount changes
+  // Sync with parent component if currentAmount prop changes externally
   useEffect(() => {
-    onUpdateCurrentAmount(id, amount);
-  }, [amount, id, onUpdateCurrentAmount]);
+    if (currentAmount !== amount) {
+      setAmount(currentAmount);
+      setInputValue(currentAmount > 0 ? currentAmount.toString() : '');
+    }
+  }, [currentAmount]);
 
   const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newValue = e.target.value;
@@ -53,8 +56,12 @@ const SupplyItem: React.FC<SupplyItemProps> = ({
     const newAmount = parseFloat(newValue);
     if (!isNaN(newAmount)) {
       setAmount(newAmount);
+      // Call parent update function directly when amount changes
+      onUpdateCurrentAmount(id, newAmount);
     } else if (newValue === '') {
       setAmount(0);
+      // Call parent update function with 0 when input is empty
+      onUpdateCurrentAmount(id, 0);
     }
   };
 
