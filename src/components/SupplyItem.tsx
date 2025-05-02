@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { Progress } from "@/components/ui/progress";
 import { Input } from "@/components/ui/input";
 
@@ -21,8 +21,7 @@ const SupplyItem: React.FC<SupplyItemProps> = ({
   onUpdateCurrentAmount,
   currentAmount = 0
 }) => {
-  // Only track the input value as state, use currentAmount prop for calculations
-  const [inputValue, setInputValue] = useState<string>(currentAmount > 0 ? currentAmount.toString() : '');
+  // Calculate progress based directly on props (no local state)
   const progress = Math.min(Math.floor((currentAmount / recommendedAmount) * 100), 100);
   
   // Status based on progress percentage
@@ -39,11 +38,6 @@ const SupplyItem: React.FC<SupplyItemProps> = ({
     if (progress > 0) return "bg-amber-500";
     return "bg-gray-300";
   };
-
-  // Update input value when prop changes
-  useEffect(() => {
-    setInputValue(currentAmount > 0 ? currentAmount.toString() : '');
-  }, [currentAmount]);
 
   return (
     <div className="flex flex-col md:flex-row md:items-center justify-between p-4 border border-gray-100 rounded-lg bg-white shadow-sm hover:shadow-md transition-shadow duration-200 mb-2">
@@ -62,25 +56,15 @@ const SupplyItem: React.FC<SupplyItemProps> = ({
           <Input
             type="text"
             inputMode="decimal"
-            value={inputValue}
-            // Direct approach - immediately update parent on change
+            value={currentAmount > 0 ? currentAmount.toString() : ''}
+            // Direct approach - similar to kit page
             onChange={(e) => {
-              const newValue = e.target.value;
-              setInputValue(newValue);
-              
-              // Directly call the update function with parsed value
-              const newAmount = parseFloat(newValue);
-              if (!isNaN(newAmount)) {
-                onUpdateCurrentAmount(id, newAmount);
-                console.log(`Updated item ${id} to ${newAmount}`);
-              } else if (newValue === '') {
-                onUpdateCurrentAmount(id, 0);
-                console.log(`Updated item ${id} to 0`);
-              }
+              const newValue = parseFloat(e.target.value);
+              onUpdateCurrentAmount(id, isNaN(newValue) ? 0 : newValue);
+              console.log(`Direct update: Item ${id} set to ${isNaN(newValue) ? 0 : newValue}`);
             }}
             className="w-20 h-8 text-center"
             placeholder="0"
-            step="0.5"
           />
           <span className="ml-1 text-gray-500">{unit}</span>
         </div>
