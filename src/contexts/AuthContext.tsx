@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { toast } from "@/components/ui/use-toast";
 
@@ -318,6 +317,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const logout = () => {
     if (!MOCK_AUTH) {
       // For real API, make a logout request to invalidate server-side session
+      // We're ignoring 404 errors since the endpoint might not exist yet
       fetch(`${API_URL}/api/logout`, {
         method: 'POST',
         credentials: 'include',
@@ -325,7 +325,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           'Authorization': `Bearer ${localStorage.getItem('auth_token')}`,
           'Content-Type': 'application/json',
         }
-      }).catch(err => console.error("Logout request error:", err));
+      })
+      .then(response => {
+        // We don't care about the response, we'll log out locally anyway
+        if (!response.ok && response.status !== 404) {
+          console.error("Logout request failed:", response.status);
+        }
+      })
+      .catch(err => console.error("Logout request error:", err));
     }
     
     localStorage.removeItem('user_info');
