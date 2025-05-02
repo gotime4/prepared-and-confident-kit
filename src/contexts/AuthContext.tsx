@@ -1,7 +1,5 @@
-
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { toast } from "@/components/ui/use-toast";
-import { hashPassword } from '@/utils/crypto';
 
 // API URL for Cloudflare Worker - make it a variable for easier configuration
 // Note: For local development without a real Worker, set MOCK_AUTH=true
@@ -39,15 +37,14 @@ const MOCK_USERS: Record<string, User> = {
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [authToken, setAuthToken] = useState<string | null>(null);
   
   // Check for existing session on load
   useEffect(() => {
     const checkAuth = async () => {
       try {
         if (MOCK_AUTH) {
-          // Mock authentication check - look for stored user in sessionStorage
-          const storedUser = sessionStorage.getItem('user_info');
+          // Mock authentication check - look for stored user in localStorage
+          const storedUser = localStorage.getItem('user_info');
           if (storedUser) {
             setUser(JSON.parse(storedUser));
           }
@@ -55,39 +52,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           return;
         }
         
-        // Get token from sessionStorage
-        const token = sessionStorage.getItem('auth_token');
-        if (!token) {
-          setIsLoading(false);
-          return;
-        }
-        
-        setAuthToken(token);
-        
         // Real authentication check with Worker API
         const response = await fetch(`${API_URL}/api/data`, {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
+          credentials: 'include'
         });
         
         if (response.ok) {
           // If we can fetch user data, the user is authenticated
           const userData = await response.json();
+          // Get user info from localStorage (stored during login/signup)
+          const userInfo = JSON.parse(localStorage.getItem('user_info') || '{}');
           
-          if (userData && userData.user) {
-            setUser(userData.user);
+          if (userInfo.id) {
+            setUser(userInfo);
           }
-        } else {
-          // Invalid token, clear it
-          sessionStorage.removeItem('auth_token');
-          sessionStorage.removeItem('user_info');
         }
       } catch (error) {
         console.error('Auth check error:', error);
         // Clear any potentially invalid auth data
-        sessionStorage.removeItem('auth_token');
-        sessionStorage.removeItem('user_info');
+        localStorage.removeItem('user_info');
       } finally {
         setIsLoading(false);
       }
@@ -108,10 +91,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         // Basic validation
         if (email === 'test@example.com' && password === 'password') {
           const userInfo = MOCK_USERS['1'];
-          sessionStorage.setItem('user_info', JSON.stringify(userInfo));
-          sessionStorage.setItem('auth_token', 'mock-token-12345');
+          localStorage.setItem('user_info', JSON.stringify(userInfo));
           setUser(userInfo);
-          setAuthToken('mock-token-12345');
           
           toast({
             title: "Login Successful",
@@ -130,16 +111,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
       }
       
-      // Hash the password before sending to server
-      const hashedPassword = await hashPassword(password, email);
-      
       // Real login with Worker API
       const response = await fetch(`${API_URL}/api/login`, {
         method: 'POST',
+        credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ email, hashedPassword }),
+        body: JSON.stringify({ email, password }),
       });
       
       const data = await response.json();
@@ -153,61 +132,56 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return false;
       }
       
-      // Store the JWT token
-      if (data.token) {
-        sessionStorage.setItem('auth_token', data.token);
-        setAuthToken(data.token);
-      }
-      
-      // Set user data
-      if (data.user) {
-        sessionStorage.setItem('user_info', JSON.stringify(data.user));
-        setUser(data.user);
-        
-        toast({
-          title: "Login Successful",
-          description: "Welcome back!",
-          variant: "default"
-        });
-        
-        return true;
-      }
-      
-      // Fallback if user data isn't included in login response
+      // Additional step to get user profile information
+      // In a real implementation, you might want to get more details about the user
       try {
         const userDataResponse = await fetch(`${API_URL}/api/data`, {
-          headers: {
-            'Authorization': `Bearer ${data.token}`
-          }
+          credentials: 'include',
         });
         
         if (userDataResponse.ok) {
+          // Get user name from DB or use email as fallback
           const userData = await userDataResponse.json();
           
-          if (userData && userData.user) {
-            sessionStorage.setItem('user_info', JSON.stringify(userData.user));
-            setUser(userData.user);
-            
-            toast({
-              title: "Login Successful",
-              description: "Welcome back!",
-              variant: "default"
-            });
-            
-            return true;
-          }
+          // Create user info object with available data
+          const userInfo = {
+            id: data.userId,
+            email: email,
+            name: userData.name || email.split('@')[0] // Fallback if name isn't provided
+          };
+          
+          localStorage.setItem('user_info', JSON.stringify(userInfo));
+          setUser(userInfo);
+          
+          toast({
+            title: "Login Successful",
+            description: "Welcome back!",
+            variant: "default"
+          });
+          
+          return true;
         }
       } catch (error) {
         console.error("Error fetching user data:", error);
       }
       
-      // If we reached here, something went wrong
+      // Fallback if user data fetch fails - still log the user in
+      const userInfo = {
+        id: data.userId,
+        email: email,
+        name: email.split('@')[0] // Use first part of email as name
+      };
+      
+      localStorage.setItem('user_info', JSON.stringify(userInfo));
+      setUser(userInfo);
+      
       toast({
-        title: "Login Error",
-        description: "Failed to retrieve user data",
-        variant: "destructive"
+        title: "Login Successful",
+        description: "Welcome back!",
+        variant: "default"
       });
-      return false;
+      
+      return true;
     } catch (error) {
       console.error('Login error:', error);
       toast({
@@ -238,12 +212,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           name: name
         };
         
-        // Store in mock users and sessionStorage
+        // Store in mock users and localStorage
         MOCK_USERS[userId] = userInfo;
-        sessionStorage.setItem('user_info', JSON.stringify(userInfo));
-        sessionStorage.setItem('auth_token', 'mock-token-' + userId);
+        localStorage.setItem('user_info', JSON.stringify(userInfo));
         setUser(userInfo);
-        setAuthToken('mock-token-' + userId);
         
         toast({
           title: "Account Created",
@@ -254,16 +226,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return true;
       }
       
-      // Hash the password before sending to server
-      const hashedPassword = await hashPassword(password, email);
-      
       // Real signup with Worker API
       const response = await fetch(`${API_URL}/api/signup`, {
         method: 'POST',
+        credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ name, email, hashedPassword }),
+        body: JSON.stringify({ name, email, password }),
       });
       
       const data = await response.json();
@@ -277,32 +247,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return false;
       }
       
-      // Store the JWT token
-      if (data.token) {
-        sessionStorage.setItem('auth_token', data.token);
-        setAuthToken(data.token);
-      }
+      const userInfo = {
+        id: data.userId,
+        email: email,
+        name: name
+      };
       
-      // Set user data
-      if (data.user) {
-        sessionStorage.setItem('user_info', JSON.stringify(data.user));
-        setUser(data.user);
-        
-        toast({
-          title: "Account Created",
-          description: "Your account has been created successfully!",
-          variant: "default"
-        });
-        
-        return true;
-      }
+      localStorage.setItem('user_info', JSON.stringify(userInfo));
+      setUser(userInfo);
       
       toast({
-        title: "Signup Error",
-        description: "Failed to create account",
-        variant: "destructive"
+        title: "Account Created",
+        description: "Your account has been created successfully!",
+        variant: "default"
       });
-      return false;
+      
+      return true;
     } catch (error) {
       console.error('Signup error:', error);
       toast({
@@ -318,21 +278,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   
   // Logout function
   const logout = () => {
-    if (!MOCK_AUTH && authToken) {
+    if (!MOCK_AUTH) {
       // For real API, make a logout request to invalidate server-side session
       fetch(`${API_URL}/api/logout`, {
         method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${authToken}`
-        }
+        credentials: 'include'
       }).catch(err => console.error("Logout request error:", err));
     }
     
-    // Clear session data
-    sessionStorage.removeItem('auth_token');
-    sessionStorage.removeItem('user_info');
-    setAuthToken(null);
+    localStorage.removeItem('user_info');
     setUser(null);
+    
+    // Optional: Clear cookie by setting an expired one
+    document.cookie = 'session=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
     
     toast({
       title: "Logged Out",
@@ -341,7 +299,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     });
   };
   
-  // Forgot password function
+  // Forgot password function (mocked)
   const forgotPassword = async (email: string): Promise<boolean> => {
     setIsLoading(true);
     
@@ -398,7 +356,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
   
-  // Reset password function
+  // Reset password function (mocked)
   const resetPassword = async (token: string, password: string): Promise<boolean> => {
     setIsLoading(true);
     
@@ -416,18 +374,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return true;
       }
       
-      // Hash the new password
-      // For reset password, we need a different approach since we don't have the email
-      // We'll hash with a fixed value and let the server handle the security
-      const hashedPassword = await hashPassword(password, token); // Using token as salt
-      
       // Real password reset with Worker API
       const response = await fetch(`${API_URL}/api/reset-password`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ token, hashedPassword }),
+        body: JSON.stringify({ token, password }),
       });
       
       if (!response.ok) {
@@ -474,11 +427,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           delete MOCK_USERS[user.id];
         }
         
-        // Clear session data
-        sessionStorage.removeItem('user_info');
-        sessionStorage.removeItem('auth_token');
+        // Clear local storage and user state
+        localStorage.removeItem('user_info');
         setUser(null);
-        setAuthToken(null);
         
         toast({
           title: "Account Deleted",
@@ -490,7 +441,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
       
       // Real delete account with Worker API (requires user to be logged in)
-      if (!user || !authToken) {
+      if (!user) {
         toast({
           title: "Error",
           description: "You must be logged in to delete your account.",
@@ -501,8 +452,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       
       const response = await fetch(`${API_URL}/api/delete-account`, {
         method: 'DELETE',
+        credentials: 'include',
         headers: {
-          'Authorization': `Bearer ${authToken}`
+          'Content-Type': 'application/json',
         }
       });
       
@@ -516,11 +468,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return false;
       }
       
-      // Clear session data
-      sessionStorage.removeItem('user_info');
-      sessionStorage.removeItem('auth_token');
+      // Clear local storage and user state
+      localStorage.removeItem('user_info');
       setUser(null);
-      setAuthToken(null);
+      
+      // Optional: Clear cookie by setting an expired one
+      document.cookie = 'session=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
       
       toast({
         title: "Account Deleted",

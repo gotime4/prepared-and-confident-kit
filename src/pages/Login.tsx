@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
@@ -14,69 +14,29 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Icons } from "@/components/icons";
-import { checkCryptoAvailability } from "@/utils/crypto";
-import { toast } from "@/components/ui/use-toast";
 
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [errorMessage, setErrorMessage] = useState("");
   const { login } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  const [cryptoAvailable, setCryptoAvailable] = useState(true);
-
-  // Check if Web Crypto API is available on component mount
-  useEffect(() => {
-    const isAvailable = checkCryptoAvailability();
-    setCryptoAvailable(isAvailable);
-    
-    if (!isAvailable) {
-      setErrorMessage("Your browser does not support secure login. Please use a modern browser.");
-    }
-  }, []);
 
   // Get the redirect path from location state or default to home
   const from = location.state?.from?.pathname || "/";
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email || !password) {
-      setErrorMessage("Email and password are required");
-      return;
-    }
+    if (!email || !password) return;
 
-    // Double-check if the Web Crypto API is available
-    if (!cryptoAvailable) {
-      setErrorMessage("Your browser does not support secure login. Please use a modern browser.");
-      return;
-    }
-
-    setErrorMessage("");
     setIsSubmitting(true);
-    
-    try {
-      console.log("Attempting login with:", email);
-      const success = await login(email, password);
-      
-      if (success) {
-        console.log("Login successful, navigating to:", from);
-        // Navigate to the page the user was trying to access or home
-        toast({
-          title: "Login successful",
-          description: "Welcome back!",
-        });
-        navigate(from);
-      } else {
-        console.log("Login failed");
-        setErrorMessage("Invalid email or password");
-      }
-    } catch (error) {
-      console.error("Login error:", error);
-      setErrorMessage("A login error occurred. Please try again.");
-    } finally {
-      setIsSubmitting(false);
+    const success = await login(email, password);
+    setIsSubmitting(false);
+
+    if (success) {
+      // Navigate to the page the user was trying to access or home
+      navigate(from);
     }
   };
 
@@ -95,11 +55,6 @@ export default function Login() {
         </CardHeader>
         <form onSubmit={handleSubmit}>
           <CardContent className="space-y-4">
-            {errorMessage && (
-              <div className="bg-destructive/15 text-destructive text-sm p-3 rounded-md">
-                {errorMessage}
-              </div>
-            )}
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
               <Input
@@ -134,7 +89,7 @@ export default function Login() {
             <Button
               type="submit"
               className="w-full"
-              disabled={isSubmitting || !cryptoAvailable}
+              disabled={isSubmitting}
             >
               {isSubmitting ? (
                 <>

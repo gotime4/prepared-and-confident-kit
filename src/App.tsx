@@ -21,7 +21,6 @@ import TermsOfUse from "./pages/TermsOfUse";
 import { SupplyProvider } from "./contexts/SupplyContext";
 import { AuthProvider } from "./contexts/AuthContext";
 import ProtectedRoute from "./components/ProtectedRoute";
-import { DataMigrationModal } from "./components/DataMigrationModal";
 
 const queryClient = new QueryClient();
 
@@ -29,11 +28,10 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <AuthProvider>
-        <BrowserRouter>
-          <SupplyProvider>
-            <Toaster />
-            <Sonner />
-            <DataMigrationModal />
+        <SupplyProvider>
+          <Toaster />
+          <Sonner />
+          <BrowserRouter>
             <Routes>
               {/* Public Routes */}
               <Route path="/login" element={<Login />} />
@@ -65,8 +63,8 @@ const App = () => (
               } />
               <Route path="*" element={<NotFound />} />
             </Routes>
-          </SupplyProvider>
-        </BrowserRouter>
+          </BrowserRouter>
+        </SupplyProvider>
       </AuthProvider>
     </TooltipProvider>
   </QueryClientProvider>
