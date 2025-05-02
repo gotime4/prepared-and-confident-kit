@@ -297,7 +297,7 @@ export default {
       'Access-Control-Allow-Headers': 'Content-Type, Authorization',
       'Access-Control-Allow-Credentials': 'true',  // Important for requests with credentials
       // Add Content-Security-Policy header to allow necessary connections
-      'Content-Security-Policy': "default-src 'self'; connect-src 'self' http://localhost:8787 http://localhost:8080 *.workers.dev *.cloudflareaccess.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; worker-src 'self' *.workers.dev blob:;"
+      'Content-Security-Policy': "default-src 'self'; connect-src 'self' http://localhost:8787 http://localhost:8080 *.workers.dev *.cloudflareaccess.com https://reliancehq.com https://*.reliancehq.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; worker-src 'self' *.workers.dev blob:;"
     };
     
     // Handle preflight requests
