@@ -21,9 +21,9 @@ const SupplyItem: React.FC<SupplyItemProps> = ({
   onUpdateCurrentAmount,
   currentAmount = 0
 }) => {
-  const [amount, setAmount] = useState<number>(currentAmount);
+  // Only track the input value as state, use currentAmount prop for calculations
   const [inputValue, setInputValue] = useState<string>(currentAmount > 0 ? currentAmount.toString() : '');
-  const progress = Math.min(Math.floor((amount / recommendedAmount) * 100), 100);
+  const progress = Math.min(Math.floor((currentAmount / recommendedAmount) * 100), 100);
   
   // Status based on progress percentage
   const getStatus = () => {
@@ -40,30 +40,10 @@ const SupplyItem: React.FC<SupplyItemProps> = ({
     return "bg-gray-300";
   };
 
-  // Sync with parent component if currentAmount prop changes externally
+  // Update input value when prop changes
   useEffect(() => {
-    if (currentAmount !== amount) {
-      setAmount(currentAmount);
-      setInputValue(currentAmount > 0 ? currentAmount.toString() : '');
-    }
+    setInputValue(currentAmount > 0 ? currentAmount.toString() : '');
   }, [currentAmount]);
-
-  const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newValue = e.target.value;
-    setInputValue(newValue);
-    
-    // Only update the numeric amount if the input is valid
-    const newAmount = parseFloat(newValue);
-    if (!isNaN(newAmount)) {
-      setAmount(newAmount);
-      // Call parent update function directly when amount changes
-      onUpdateCurrentAmount(id, newAmount);
-    } else if (newValue === '') {
-      setAmount(0);
-      // Call parent update function with 0 when input is empty
-      onUpdateCurrentAmount(id, 0);
-    }
-  };
 
   return (
     <div className="flex flex-col md:flex-row md:items-center justify-between p-4 border border-gray-100 rounded-lg bg-white shadow-sm hover:shadow-md transition-shadow duration-200 mb-2">
@@ -83,7 +63,21 @@ const SupplyItem: React.FC<SupplyItemProps> = ({
             type="text"
             inputMode="decimal"
             value={inputValue}
-            onChange={handleAmountChange}
+            // Direct approach - immediately update parent on change
+            onChange={(e) => {
+              const newValue = e.target.value;
+              setInputValue(newValue);
+              
+              // Directly call the update function with parsed value
+              const newAmount = parseFloat(newValue);
+              if (!isNaN(newAmount)) {
+                onUpdateCurrentAmount(id, newAmount);
+                console.log(`Updated item ${id} to ${newAmount}`);
+              } else if (newValue === '') {
+                onUpdateCurrentAmount(id, 0);
+                console.log(`Updated item ${id} to 0`);
+              }
+            }}
             className="w-20 h-8 text-center"
             placeholder="0"
             step="0.5"
