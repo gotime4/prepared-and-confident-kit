@@ -4,8 +4,8 @@ import { toast } from "@/components/ui/use-toast";
 
 // API URL for Cloudflare Worker - make it a variable for easier configuration
 // Note: For local development without a real Worker, set MOCK_AUTH=true
-const MOCK_AUTH = true; // Set to false when you have a real Worker deployed
-const API_URL = MOCK_AUTH ? null : 'https://prepper-auth-worker.your-domain.workers.dev';
+const MOCK_AUTH = false; // Set to false when you have a real Worker deployed
+const API_URL = MOCK_AUTH ? null : 'https://prepper-auth-worker.petersenrj.workers.dev';
 
 // Define types for user and context
 interface User {
