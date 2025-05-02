@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from 'react';
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -56,7 +57,8 @@ const PrepReport = () => {
     <div className="min-h-screen flex flex-col">
       <Navbar />
       
-      <div className="flex-1 container mx-auto px-4 py-8">
+      {/* Added pt-24 to push content below the navbar */}
+      <div className="flex-1 container mx-auto px-4 py-8 pt-24">
         <div className="max-w-4xl mx-auto">
           <h1 className="text-3xl font-bold mb-8 text-center">Preparedness Report</h1>
           

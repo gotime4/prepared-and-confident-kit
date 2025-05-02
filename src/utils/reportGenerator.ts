@@ -1,3 +1,4 @@
+
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { SupplyItem } from '@/contexts/SupplyContext';
@@ -250,16 +251,20 @@ export const generatePDF = (reportData: ReportData): void => {
       },
       didDrawCell: (data) => {
         // Draw progress bars in the last column
-        if (data.column.index === 3 && data.section === 'body') {
-          const progress = parseInt(data.cell.text[0].replace('%', ''));
-          // Access the cell boundaries safely
-          const x = data.cell.x + 5;
-          const y = data.cell.y + data.cell.height - 8;
-          const barWidth = 20;
-          const barHeight = 4;
+        if (data.column.index === 3 && data.section === 'body' && data.cell.raw) {
+          const progress = parseInt(String(data.cell.raw).replace('%', ''));
           
-          // Draw the progress bar
-          drawProgressBar(doc, x, y, barWidth, barHeight, progress);
+          // Only access properties we know exist
+          if (data.cell.x !== undefined && data.cell.y !== undefined && data.cell.height !== undefined) {
+            // Position the progress bar to not overlap with text
+            const x = data.cell.x + 5;
+            const y = data.cell.y + data.cell.height - 8;
+            const barWidth = 20;
+            const barHeight = 4;
+            
+            // Draw the progress bar
+            drawProgressBar(doc, x, y, barWidth, barHeight, progress);
+          }
         }
       },
       didDrawPage: function(data) {
