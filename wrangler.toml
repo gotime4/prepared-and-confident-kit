@@ -2,6 +2,9 @@ name = "auth-worker"
 main = "src/auth-worker.js"
 compatibility_date = "2023-05-18"
 
+# Cloudflare Pages configuration
+pages_build_output_dir = "dist"
+
 [vars]
 # Add your environment variables here
 
