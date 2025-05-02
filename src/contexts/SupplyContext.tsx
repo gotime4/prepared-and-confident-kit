@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { useAuth } from './AuthContext';
 import { fetchUserData, saveUserData } from '@/utils/apiUtils';
@@ -52,6 +51,15 @@ export const SupplyProvider: React.FC<SupplyProviderProps> = ({ children }) => {
   const [isSyncing, setIsSyncing] = useState(false);
   const [isDataLoaded, setIsDataLoaded] = useState(false);
   const { user, isAuthenticated } = useAuth();
+
+  // Add debugging info on mount
+  useEffect(() => {
+    console.log("SupplyProvider mounted. Auth state:", { 
+      isAuthenticated, 
+      hasUser: !!user,
+      hasAuthToken: !!localStorage.getItem('auth_token')
+    });
+  }, [isAuthenticated, user]);
 
   // Load data from API when authenticated - this is the primary data source
   useEffect(() => {
@@ -139,12 +147,20 @@ export const SupplyProvider: React.FC<SupplyProviderProps> = ({ children }) => {
 
   // Function to save data to the database
   const saveDataToDb = async () => {
+    console.log('saveDataToDb called with auth state:', { 
+      isAuthenticated, 
+      hasUser: !!user,
+      userInfo: user ? `${user.name} (${user.email})` : 'no user'
+    });
+    
     if (!isAuthenticated) {
       console.log('Not authenticated, skipping data save');
       return;
     }
     
     const authToken = localStorage.getItem('auth_token');
+    console.log('Auth token check:', authToken ? 'Token found' : 'No token found');
+    
     if (!authToken) {
       console.log('No auth token found, skipping data save');
       return;
@@ -152,6 +168,7 @@ export const SupplyProvider: React.FC<SupplyProviderProps> = ({ children }) => {
     
     setIsSyncing(true);
     try {
+      console.log('Attempting to save data to server...');
       const result = await saveUserData(authToken, {
         kit: kitItems,
         storage: foodItems,
@@ -160,6 +177,11 @@ export const SupplyProvider: React.FC<SupplyProviderProps> = ({ children }) => {
       
       if (result) {
         console.log('Data saved to database successfully');
+        toast({
+          title: "Data Synced",
+          description: "Your data has been saved to the cloud",
+          variant: "default"
+        });
       } else {
         console.error('Failed to save data to database');
         toast({

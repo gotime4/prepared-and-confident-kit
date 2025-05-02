@@ -204,10 +204,26 @@ async function handleGetData(request, env) {
     'SELECT * FROM user_data WHERE user_id = ?'
   ).bind(user.id).first();
   
+  let responseData;
+  
+  try {
+    // Try to parse the data as JSON
+    if (userData && userData.data) {
+      responseData = userData.data.startsWith('{') ? JSON.parse(userData.data) : {};
+    } else {
+      responseData = {};
+    }
+  } catch (error) {
+    console.error('Error parsing user data:', error);
+    responseData = {};
+  }
+  
   return new Response(JSON.stringify({ 
     success: true,
-    user,
-    data: userData || {}
+    userId: user.id, // Include userId for client auth verification
+    email: user.email,
+    name: user.name,
+    ...responseData // Spread parsed user data into response
   }), {
     status: 200,
     headers: { 'Content-Type': 'application/json' }

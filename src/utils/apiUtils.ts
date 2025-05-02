@@ -3,9 +3,10 @@
 const API_URL = 'https://auth-worker.petersenrj.workers.dev/api';
 
 export interface ApiResponse {
-  kit: any[];
-  storage: any[];
-  report: any;
+  kit?: any[];
+  storage?: any[];
+  report?: any;
+  [key: string]: any;
 }
 
 // Function to fetch all user data
@@ -29,8 +30,19 @@ export const fetchUserData = async (authToken: string): Promise<ApiResponse> => 
     }
 
     const data = await response.json();
-    console.log('Data fetched successfully:', data ? 'Data present' : 'No data');
-    return data;
+    console.log('Data fetched successfully. Response contains:', 
+      Object.keys(data).join(', '), 
+      'Has kit:', !!data.kit, 
+      'Has storage:', !!data.storage
+    );
+    
+    // Return the data with default empty arrays if kit/storage are missing
+    return {
+      ...data,
+      kit: data.kit || [],
+      storage: data.storage || [],
+      report: data.report || null
+    };
   } catch (error) {
     console.error('Error fetching data:', error);
     // Return empty data structure on error
@@ -52,6 +64,7 @@ export const saveUserData = async (
       lastUpdated: new Date().toISOString()
     };
     
+    console.log('Making fetch request to API_URL:', API_URL);
     const response = await fetch(`${API_URL}/data`, {
       method: 'POST',
       headers: {
