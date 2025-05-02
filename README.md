@@ -71,3 +71,45 @@ Yes, you can!
 To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
 
 Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+
+# Authentication Worker Setup
+
+## Prerequisites
+
+- Node.js and npm installed
+- Cloudflare account
+- Wrangler CLI installed
+
+## Setup Instructions
+
+1. Install Wrangler CLI if not already installed:
+   ```bash
+   npm install -g wrangler
+   ```
+
+2. Log in to your Cloudflare account:
+   ```bash
+   wrangler login
+   ```
+
+3. Initialize your project:
+   ```bash
+   wrangler init
+   ```
+
+4. Create a D1 database:
+   ```bash
+   wrangler d1 create auth-database
+   ```
+
+5. Add the database to your wrangler.toml configuration
+
+6. Set up the database schema:
+   ```bash
+   wrangler d1 execute auth-database --file=schema.sql
+   ```
+
+7. Deploy your worker:
+   ```bash
+   wrangler publish
+   ```

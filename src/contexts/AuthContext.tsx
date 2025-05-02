@@ -4,7 +4,10 @@ import { toast } from "@/components/ui/use-toast";
 // API URL for Cloudflare Worker - make it a variable for easier configuration
 // Note: For local development without a real Worker, set MOCK_AUTH=true
 const MOCK_AUTH = false; // Set to false when you have a real Worker deployed
-const API_URL = MOCK_AUTH ? null : 'https://prepper-auth-worker.petersenrj.workers.dev';
+
+// The proxy in vite.config.ts is already configured to forward /api requests to localhost:8787
+// So we don't need to specify the full URL, just use the path that will be proxied
+const API_URL = MOCK_AUTH ? null : ''; // Empty string means same origin, which uses the proxy
 
 // Define types for user and context
 interface User {
@@ -53,8 +56,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
         
         // Real authentication check with Worker API
-        const response = await fetch(`${API_URL}/api/data`, {
+        const response = await fetch(`/api/data`, {
           credentials: 'include',
+          mode: 'cors',
           headers: {
             'Authorization': `Bearer ${localStorage.getItem('auth_token')}`,
             'Content-Type': 'application/json',
@@ -137,9 +141,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
       
       // Real login with Worker API
-      const response = await fetch(`${API_URL}/api/login`, {
+      const response = await fetch(`/api/login`, {
         method: 'POST',
         credentials: 'include',
+        mode: 'cors',
         headers: {
           'Content-Type': 'application/json',
         },
@@ -164,8 +169,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       
       // Additional step to get user profile information
       try {
-        const userDataResponse = await fetch(`${API_URL}/api/data`, {
+        const userDataResponse = await fetch(`/api/data`, {
           credentials: 'include',
+          mode: 'cors',
           headers: {
             'Authorization': `Bearer ${data.token || localStorage.getItem('auth_token')}`,
             'Content-Type': 'application/json',
@@ -264,9 +270,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
       
       // Real signup with Worker API
-      const response = await fetch(`${API_URL}/api/signup`, {
+      const response = await fetch(`/api/signup`, {
         method: 'POST',
         credentials: 'include',
+        mode: 'cors',
         headers: {
           'Content-Type': 'application/json',
         },
@@ -318,9 +325,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (!MOCK_AUTH) {
       // For real API, make a logout request to invalidate server-side session
       // We're ignoring 404 errors since the endpoint might not exist yet
-      fetch(`${API_URL}/api/logout`, {
+      fetch(`/api/logout`, {
         method: 'POST',
         credentials: 'include',
+        mode: 'cors',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('auth_token')}`,
           'Content-Type': 'application/json',
@@ -365,8 +373,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
       
       // Real forgot password with Worker API
-      const response = await fetch(`${API_URL}/api/forgot-password`, {
+      const response = await fetch(`/api/forgot-password`, {
         method: 'POST',
+        mode: 'cors',
         headers: {
           'Content-Type': 'application/json',
         },
@@ -422,8 +431,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
       
       // Real password reset with Worker API
-      const response = await fetch(`${API_URL}/api/reset-password`, {
+      const response = await fetch(`/api/reset-password`, {
         method: 'POST',
+        mode: 'cors',
         headers: {
           'Content-Type': 'application/json',
         },
@@ -497,9 +507,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return false;
       }
       
-      const response = await fetch(`${API_URL}/api/delete-account`, {
+      const response = await fetch(`/api/delete-account`, {
         method: 'DELETE',
         credentials: 'include',
+        mode: 'cors',
         headers: {
           'Content-Type': 'application/json',
         }
