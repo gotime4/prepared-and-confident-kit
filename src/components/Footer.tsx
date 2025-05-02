@@ -41,19 +41,19 @@ const Footer = () => {
             <h3 className="text-sm font-semibold text-gray-900 tracking-wider uppercase">About</h3>
             <ul className="mt-4 space-y-2">
               <li>
-                <a href="#" className="text-sm text-gray-500 hover:text-gray-900">
+                <Link to="/mission" className="text-sm text-gray-500 hover:text-gray-900">
                   Our Mission
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="#" className="text-sm text-gray-500 hover:text-gray-900">
+                <Link to="/privacy" className="text-sm text-gray-500 hover:text-gray-900">
                   Privacy Policy
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="#" className="text-sm text-gray-500 hover:text-gray-900">
+                <Link to="/terms" className="text-sm text-gray-500 hover:text-gray-900">
                   Terms of Use
-                </a>
+                </Link>
               </li>
             </ul>
           </div>
@@ -63,6 +63,13 @@ const Footer = () => {
             © {new Date().getFullYear()} Self-Reliance Guide. All rights reserved.
           </p>
           <div className="mt-4 md:mt-0 flex space-x-4">
+            <a href="mailto:rhq@pm.me" className="text-gray-400 hover:text-gray-500">
+              <span className="sr-only">Email</span>
+              <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M1.5 8.67v8.58a3 3 0 003 3h15a3 3 0 003-3V8.67l-8.928 5.493a3 3 0 01-3.144 0L1.5 8.67z" />
+                <path d="M22.5 6.908V6.75a3 3 0 00-3-3h-15a3 3 0 00-3 3v.158l9.714 5.978a1.5 1.5 0 001.572 0L22.5 6.908z" />
+              </svg>
+            </a>
             <a href="#" className="text-gray-400 hover:text-gray-500">
               <span className="sr-only">Twitter</span>
               <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
