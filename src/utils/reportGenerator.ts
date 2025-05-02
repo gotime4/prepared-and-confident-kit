@@ -14,6 +14,7 @@ interface ReportData {
     inProgress: number;
     notStarted: number;
   };
+  allItems: SupplyItem[]; // Added all items to the report data
 }
 
 // Helper function to format date
@@ -30,9 +31,33 @@ const getStatusColor = (progress: number): string => {
   return '#ef4444'; // Red
 };
 
+// Helper function to create a progress bar in the PDF
+const drawProgressBar = (
+  doc: jsPDF, 
+  x: number, 
+  y: number, 
+  width: number, 
+  height: number, 
+  progress: number
+): void => {
+  // Draw background bar
+  doc.setDrawColor(229, 231, 235); // Light gray
+  doc.setFillColor(229, 231, 235);
+  doc.rect(x, y, width, height, 'F');
+  
+  // Calculate progress width
+  const progressWidth = (progress / 100) * width;
+  
+  // Draw progress bar
+  const color = getStatusColor(progress);
+  doc.setDrawColor(color);
+  doc.setFillColor(color);
+  doc.rect(x, y, progressWidth, height, 'F');
+};
+
 // Main function to generate PDF report
 export const generatePDF = (reportData: ReportData): void => {
-  const { foodProgress, kitProgress, overallScore, priorityItems, completedCounts } = reportData;
+  const { foodProgress, kitProgress, overallScore, priorityItems, completedCounts, allItems } = reportData;
   const doc = new jsPDF();
   
   // Set title
@@ -155,6 +180,95 @@ export const generatePDF = (reportData: ReportData): void => {
       { maxWidth: 170 }
     );
   }
+
+  // NEW SECTION: Add detailed inventory list with progress bars
+  doc.addPage();
+  doc.setFontSize(16);
+  doc.setTextColor('#0f172a');
+  doc.text('Complete Inventory List', 105, 20, { align: 'center' });
+
+  // Group items by category
+  const groupedItems: { [key: string]: SupplyItem[] } = {};
+  allItems.forEach(item => {
+    if (!groupedItems[item.category]) {
+      groupedItems[item.category] = [];
+    }
+    groupedItems[item.category].push(item);
+  });
+
+  // Starting Y position for the first category
+  let yPosition = 40;
+  
+  // Iterate through each category
+  Object.keys(groupedItems).forEach(category => {
+    // If we're near the bottom of the page, add a new page
+    if (yPosition > 250) {
+      doc.addPage();
+      yPosition = 20;
+    }
+    
+    // Add category header
+    doc.setFontSize(14);
+    doc.setTextColor('#0f172a');
+    doc.text(category, 20, yPosition);
+    yPosition += 10;
+    
+    // Table headers
+    const tableHeaders = [['Item', 'Have', 'Need', 'Progress']];
+    
+    // Table data
+    const tableData = groupedItems[category].map(item => {
+      const progress = Math.min(Math.round((item.currentAmount / item.recommendedAmount) * 100), 100);
+      return [
+        item.name,
+        `${item.currentAmount} ${item.unit}`,
+        `${item.recommendedAmount} ${item.unit}`,
+        `${progress}%`,
+      ];
+    });
+    
+    // Draw the table
+    autoTable(doc, {
+      startY: yPosition,
+      head: tableHeaders,
+      body: tableData,
+      headStyles: {
+        fillColor: [15, 23, 42],
+        textColor: [255, 255, 255],
+        fontStyle: 'bold'
+      },
+      bodyStyles: {
+        textColor: [30, 41, 59]
+      },
+      alternateRowStyles: {
+        fillColor: [241, 245, 249]
+      },
+      columnStyles: {
+        0: { cellWidth: 80 }, // Item name
+        1: { cellWidth: 30 }, // Current amount
+        2: { cellWidth: 30 }, // Recommended amount
+        3: { cellWidth: 30 }, // Progress percentage
+      },
+      didDrawCell: (data) => {
+        // Draw progress bars in the last column
+        if (data.column.index === 3 && data.section === 'body') {
+          const progress = parseInt(data.cell.text[0].replace('%', ''));
+          const cellRect = data.cell.rect;
+          
+          // Draw the progress bar
+          const barX = cellRect.x + 5;
+          const barY = cellRect.y + cellRect.height - 8;
+          const barWidth = 20;
+          const barHeight = 4;
+          
+          drawProgressBar(doc, barX, barY, barWidth, barHeight, progress);
+        }
+      },
+      didDrawPage: function(data) {
+        yPosition = data.cursor.y + 15; // Update Y position for next section
+      }
+    });
+  });
   
   // Add footer
   const pageCount = doc.getNumberOfPages();
