@@ -257,7 +257,7 @@ export const generatePDF = (reportData: ReportData): void => {
           // Only access properties we know exist
           if (data.cell.x !== undefined && data.cell.y !== undefined && data.cell.height !== undefined) {
             // Position the progress bar to not overlap with text
-            const x = data.cell.x + 5;
+            const x = data.cell.x + 22; // Moved right by 17px to avoid overlapping with text
             const y = data.cell.y + data.cell.height - 8;
             const barWidth = 20;
             const barHeight = 4;
