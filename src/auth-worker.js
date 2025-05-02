@@ -48,50 +48,77 @@ const validateSession = async (env, token) => {
 
 // Handle signup request
 async function handleSignup(request, env) {
-  const { email, password, name } = await request.json();
-  
-  // Validation
-  if (!email || !password || !name) {
-    return new Response(JSON.stringify({ 
-      error: 'Email, password, and name are required' 
-    }), {
-      status: 400,
-      headers: { 'Content-Type': 'application/json' }
-    });
-  }
-  
-  // Check if user already exists
-  const existingUser = await env.DB.prepare(
-    'SELECT id FROM users WHERE email = ?'
-  ).bind(email).first();
-  
-  if (existingUser) {
-    return new Response(JSON.stringify({ 
-      error: 'User with this email already exists' 
-    }), {
-      status: 409,
-      headers: { 'Content-Type': 'application/json' }
-    });
-  }
-  
-  // Hash password and create user
-  const hashedPassword = await generateSHA256(password);
-  
   try {
-    await env.DB.prepare(
-      'INSERT INTO users (email, password, name) VALUES (?, ?, ?)'
-    ).bind(email, hashedPassword, name).run();
+    const { email, password, name } = await request.json();
     
-    return new Response(JSON.stringify({ 
-      success: true,
-      message: 'User created successfully' 
-    }), {
-      status: 201,
-      headers: { 'Content-Type': 'application/json' }
-    });
+    // Validation
+    if (!email || !password || !name) {
+      return new Response(JSON.stringify({ 
+        error: 'Email, password, and name are required' 
+      }), {
+        status: 400,
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }
+    
+    try {
+      // Check if user already exists
+      const existingUser = await env.DB.prepare(
+        'SELECT id FROM users WHERE email = ?'
+      ).bind(email).first();
+      
+      if (existingUser) {
+        return new Response(JSON.stringify({ 
+          error: 'User with this email already exists' 
+        }), {
+          status: 409,
+          headers: { 'Content-Type': 'application/json' }
+        });
+      }
+    } catch (dbError) {
+      // Catch and report specific database errors
+      console.error('Database error when checking existing user:', dbError);
+      return new Response(JSON.stringify({ 
+        error: 'Database error when checking user',
+        details: dbError.message
+      }), {
+        status: 500,
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }
+    
+    // Hash password and create user
+    const hashedPassword = await generateSHA256(password);
+    
+    try {
+      await env.DB.prepare(
+        'INSERT INTO users (email, password, name) VALUES (?, ?, ?)'
+      ).bind(email, hashedPassword, name).run();
+      
+      return new Response(JSON.stringify({ 
+        success: true,
+        message: 'User created successfully' 
+      }), {
+        status: 201,
+        headers: { 'Content-Type': 'application/json' }
+      });
+    } catch (insertError) {
+      // Catch and report specific insert errors
+      console.error('Failed to create user:', insertError);
+      return new Response(JSON.stringify({ 
+        error: 'Failed to create user',
+        details: insertError.message
+      }), {
+        status: 500,
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }
   } catch (error) {
+    // Catch any overall errors, including JSON parsing
+    console.error('Signup error:', error);
     return new Response(JSON.stringify({ 
-      error: 'Failed to create user' 
+      error: 'Failed to process signup',
+      details: error.message
     }), {
       status: 500,
       headers: { 'Content-Type': 'application/json' }
@@ -290,14 +317,26 @@ export default {
     // Get the request origin 
     const origin = request.headers.get('Origin') || 'http://localhost:8080';
     
-    // Enhanced CORS headers with proper CSP
+    // List of allowed origins - add your production domain here
+    const allowedOrigins = [
+      'http://localhost:8080',
+      'http://localhost:5173', 
+      'http://localhost:3000',
+      'https://reliancehq.com',
+      'https://www.reliancehq.com',
+      'https://prepared-and-confident-kit.pages.dev'
+    ];
+    
+    // Check if the request origin is allowed
+    const isAllowedOrigin = allowedOrigins.includes(origin);
+    
+    // Enhanced CORS headers with proper CSP - use actual origin if it's allowed, otherwise use a default
     const corsHeaders = {
-      'Access-Control-Allow-Origin': origin,  // Use the request's origin instead of wildcard
+      'Access-Control-Allow-Origin': isAllowedOrigin ? origin : allowedOrigins[0],
       'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
       'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-      'Access-Control-Allow-Credentials': 'true',  // Important for requests with credentials
-      // Add Content-Security-Policy header to allow necessary connections
-      'Content-Security-Policy': "default-src 'self'; connect-src 'self' http://localhost:8787 http://localhost:8080 *.workers.dev *.cloudflareaccess.com https://reliancehq.com https://*.reliancehq.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; worker-src 'self' *.workers.dev blob:;"
+      'Access-Control-Allow-Credentials': 'true',
+      'Content-Security-Policy': "default-src 'self'; connect-src 'self' http://localhost:8787 http://localhost:8080 http://localhost:5173 http://localhost:3000 *.workers.dev *.cloudflareaccess.com https://reliancehq.com https://*.reliancehq.com https://prepared-and-confident-kit.pages.dev; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; worker-src 'self' *.workers.dev blob:;"
     };
     
     // Handle preflight requests
