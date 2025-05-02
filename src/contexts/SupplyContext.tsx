@@ -1,4 +1,11 @@
+
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { useAuth } from './AuthContext';
+import { toast } from "@/components/ui/use-toast";
+
+// API URL for Cloudflare Worker - make it a variable for easier configuration
+const API_URL = 'https://prepper-auth-worker.petersenrj.workers.dev';
+const MOCK_API = false; // Set to false when you have a real Worker deployed
 
 // Types for our supply items
 export interface SupplyItem {
@@ -24,6 +31,8 @@ interface SupplyContextType {
   getPriorities: () => SupplyItem[];
   getCompletedCount: () => { complete: number, inProgress: number, notStarted: number };
   getOverallScore: () => number;
+  isLoading: boolean;
+  syncData: () => Promise<boolean>;
 }
 
 const SupplyContext = createContext<SupplyContextType | undefined>(undefined);
@@ -44,39 +53,231 @@ export const SupplyProvider: React.FC<SupplyProviderProps> = ({ children }) => {
   // Initialize with empty arrays
   const [foodItems, setFoodItems] = useState<SupplyItem[]>([]);
   const [kitItems, setKitItems] = useState<SupplyItem[]>([]);
-
-  // Load data from localStorage on component mount
-  useEffect(() => {
-    const savedFoodItems = localStorage.getItem('foodItems');
-    const savedKitItems = localStorage.getItem('kitItems');
-    
-    if (savedFoodItems) {
-      setFoodItems(JSON.parse(savedFoodItems));
-    }
-    
-    if (savedKitItems) {
-      setKitItems(JSON.parse(savedKitItems));
-    }
-  }, []);
-
-  // Save to localStorage whenever items change
-  useEffect(() => {
-    if (foodItems.length > 0) {
-      localStorage.setItem('foodItems', JSON.stringify(foodItems));
-    }
-  }, [foodItems]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [dataChanged, setDataChanged] = useState(false);
   
+  // Get auth context for token access
+  const { user, isAuthenticated } = useAuth();
+  
+  // Helper to get auth token
+  const getAuthToken = (): string | null => {
+    return sessionStorage.getItem('auth_token');
+  };
+  
+  // Load data from API on component mount or when auth state changes
   useEffect(() => {
-    if (kitItems.length > 0) {
-      localStorage.setItem('kitItems', JSON.stringify(kitItems));
+    const fetchData = async () => {
+      if (!isAuthenticated || !user) {
+        setIsLoading(false);
+        return;
+      }
+      
+      setIsLoading(true);
+      
+      if (MOCK_API) {
+        // Check localStorage as a fallback during development
+        const savedFoodItems = localStorage.getItem('foodItems');
+        const savedKitItems = localStorage.getItem('kitItems');
+        
+        if (savedFoodItems) {
+          setFoodItems(JSON.parse(savedFoodItems));
+        }
+        
+        if (savedKitItems) {
+          setKitItems(JSON.parse(savedKitItems));
+        }
+        
+        setIsLoading(false);
+        return;
+      }
+      
+      try {
+        const token = getAuthToken();
+        if (!token) {
+          setIsLoading(false);
+          return;
+        }
+        
+        const response = await fetch(`${API_URL}/api/supplies`, {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+        
+        if (response.ok) {
+          const data = await response.json();
+          
+          if (data.foodItems) {
+            setFoodItems(data.foodItems);
+          }
+          
+          if (data.kitItems) {
+            setKitItems(data.kitItems);
+          }
+        } else {
+          console.error('Failed to fetch supply data');
+          // If API fails, try localStorage as fallback
+          const savedFoodItems = localStorage.getItem('foodItems');
+          const savedKitItems = localStorage.getItem('kitItems');
+          
+          if (savedFoodItems) {
+            setFoodItems(JSON.parse(savedFoodItems));
+          }
+          
+          if (savedKitItems) {
+            setKitItems(JSON.parse(savedKitItems));
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching supply data:', error);
+        // If API fails, try localStorage as fallback
+        const savedFoodItems = localStorage.getItem('foodItems');
+        const savedKitItems = localStorage.getItem('kitItems');
+        
+        if (savedFoodItems) {
+          setFoodItems(JSON.parse(savedFoodItems));
+        }
+        
+        if (savedKitItems) {
+          setKitItems(JSON.parse(savedKitItems));
+        }
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
+    fetchData();
+  }, [isAuthenticated, user]);
+  
+  // Save data to API whenever items change
+  useEffect(() => {
+    const saveData = async () => {
+      if (!isAuthenticated || !user || !dataChanged) {
+        return;
+      }
+      
+      if (MOCK_API) {
+        // Save to localStorage as a fallback during development
+        if (foodItems.length > 0) {
+          localStorage.setItem('foodItems', JSON.stringify(foodItems));
+        }
+        
+        if (kitItems.length > 0) {
+          localStorage.setItem('kitItems', JSON.stringify(kitItems));
+        }
+        
+        setDataChanged(false);
+        return;
+      }
+      
+      try {
+        const token = getAuthToken();
+        if (!token) {
+          return;
+        }
+        
+        const response = await fetch(`${API_URL}/api/supplies`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({
+            foodItems,
+            kitItems
+          })
+        });
+        
+        if (!response.ok) {
+          console.error('Failed to save supply data');
+          // Save to localStorage as a fallback
+          if (foodItems.length > 0) {
+            localStorage.setItem('foodItems', JSON.stringify(foodItems));
+          }
+          
+          if (kitItems.length > 0) {
+            localStorage.setItem('kitItems', JSON.stringify(kitItems));
+          }
+        }
+      } catch (error) {
+        console.error('Error saving supply data:', error);
+        // Save to localStorage as a fallback
+        if (foodItems.length > 0) {
+          localStorage.setItem('foodItems', JSON.stringify(foodItems));
+        }
+        
+        if (kitItems.length > 0) {
+          localStorage.setItem('kitItems', JSON.stringify(kitItems));
+        }
+      } finally {
+        setDataChanged(false);
+      }
+    };
+    
+    saveData();
+  }, [foodItems, kitItems, isAuthenticated, user, dataChanged]);
+  
+  // Manually sync data with server
+  const syncData = async (): Promise<boolean> => {
+    if (!isAuthenticated || !user) {
+      return false;
     }
-  }, [kitItems]);
+    
+    setIsLoading(true);
+    
+    try {
+      const token = getAuthToken();
+      if (!token) {
+        setIsLoading(false);
+        return false;
+      }
+      
+      const response = await fetch(`${API_URL}/api/supplies`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          foodItems,
+          kitItems
+        })
+      });
+      
+      if (response.ok) {
+        toast({
+          title: "Data Synchronized",
+          description: "Your supply data has been saved to the server",
+          variant: "default"
+        });
+        return true;
+      } else {
+        toast({
+          title: "Sync Failed",
+          description: "Failed to synchronize supply data",
+          variant: "destructive"
+        });
+        return false;
+      }
+    } catch (error) {
+      console.error('Error syncing supply data:', error);
+      toast({
+        title: "Sync Error",
+        description: "An unexpected error occurred while syncing data",
+        variant: "destructive"
+      });
+      return false;
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   // Initialize food items (for first time setup)
   const initializeFoodItems = (items: SupplyItem[]) => {
     // Only initialize if we don't already have items
     if (foodItems.length === 0) {
       setFoodItems(items);
+      setDataChanged(true);
     }
   };
 
@@ -85,6 +286,7 @@ export const SupplyProvider: React.FC<SupplyProviderProps> = ({ children }) => {
     // Only initialize if we don't already have items
     if (kitItems.length === 0) {
       setKitItems(items);
+      setDataChanged(true);
     }
   };
 
@@ -95,6 +297,7 @@ export const SupplyProvider: React.FC<SupplyProviderProps> = ({ children }) => {
         item.id === id ? { ...item, currentAmount: amount } : item
       )
     );
+    setDataChanged(true);
   };
 
   // Update a kit item's current amount
@@ -110,6 +313,7 @@ export const SupplyProvider: React.FC<SupplyProviderProps> = ({ children }) => {
           : item
       )
     );
+    setDataChanged(true);
   };
 
   // Update recommended amounts for food items
@@ -123,6 +327,7 @@ export const SupplyProvider: React.FC<SupplyProviderProps> = ({ children }) => {
         } : item;
       })
     );
+    setDataChanged(true);
   };
 
   // Calculate progress percentage for a list of items
@@ -190,6 +395,8 @@ export const SupplyProvider: React.FC<SupplyProviderProps> = ({ children }) => {
     getPriorities,
     getCompletedCount,
     getOverallScore,
+    isLoading,
+    syncData
   };
 
   return (

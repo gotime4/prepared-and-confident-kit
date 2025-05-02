@@ -21,6 +21,7 @@ import TermsOfUse from "./pages/TermsOfUse";
 import { SupplyProvider } from "./contexts/SupplyContext";
 import { AuthProvider } from "./contexts/AuthContext";
 import ProtectedRoute from "./components/ProtectedRoute";
+import { DataMigrationModal } from "./components/DataMigrationModal";
 
 const queryClient = new QueryClient();
 
@@ -31,6 +32,7 @@ const App = () => (
         <SupplyProvider>
           <Toaster />
           <Sonner />
+          <DataMigrationModal />
           <BrowserRouter>
             <Routes>
               {/* Public Routes */}
