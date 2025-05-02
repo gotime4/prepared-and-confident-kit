@@ -117,8 +117,9 @@ export const generatePDF = (reportData: ReportData): void => {
     doc.setTextColor('#0f172a');
     doc.text('Top Priority Items', 20, 20);
     
-    // Create priority items table
-    const result = autoTable(doc, {
+    // Create priority items table and store the table output object
+    // Define the correct return type for autoTable (it returns an object with table information)
+    const tableOutput = autoTable(doc, {
       startY: 30,
       head: [['Item', 'Category', 'Current', 'Needed']],
       body: priorityItems.map(item => [
@@ -139,14 +140,17 @@ export const generatePDF = (reportData: ReportData): void => {
       },
     });
     
-    // Add recommendation text - fixed by properly typing 'result' from autoTable
-    if (result && typeof result === 'object' && 'finalY' in result) {
+    // Add recommendation text using the tableOutput finalY property
+    // The autoTable function returns a table output object that includes finalY
+    if (tableOutput && typeof tableOutput === 'object' && 'finalY' in tableOutput) {
+      const finalYPosition = tableOutput.finalY || 0;
+      
       doc.setFontSize(12);
       doc.setTextColor('#64748b');
       doc.text(
         'RECOMMENDATION: Focus on obtaining these priority items to quickly improve your preparedness score.',
         20,
-        result.finalY + 20,
+        finalYPosition + 20,
         { maxWidth: 170 }
       );
     }
