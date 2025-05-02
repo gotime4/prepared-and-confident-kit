@@ -1,7 +1,6 @@
-
 // API utilities for data fetching and storage
 
-const API_URL = 'https://prepper-auth-worker.petersenrj.workers.dev/api';
+const API_URL = 'https://auth-worker.petersenrj.workers.dev/api';
 
 export interface ApiResponse {
   kit: any[];

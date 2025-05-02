@@ -5,9 +5,8 @@ import { toast } from "@/components/ui/use-toast";
 // Note: For local development without a real Worker, set MOCK_AUTH=true
 const MOCK_AUTH = false; // Set to false when you have a real Worker deployed
 
-// The proxy in vite.config.ts is already configured to forward /api requests to localhost:8787
-// So we don't need to specify the full URL, just use the path that will be proxied
-const API_URL = MOCK_AUTH ? null : ''; // Empty string means same origin, which uses the proxy
+// Auth worker URL
+const API_URL = 'https://auth-worker.petersenrj.workers.dev/api';
 
 // Define types for user and context
 interface User {
@@ -56,7 +55,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
         
         // Real authentication check with Worker API
-        const response = await fetch(`/api/data`, {
+        const response = await fetch(`${API_URL}/data`, {
           credentials: 'include',
           mode: 'cors',
           headers: {
@@ -141,7 +140,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
       
       // Real login with Worker API
-      const response = await fetch(`/api/login`, {
+      const response = await fetch(`${API_URL}/login`, {
         method: 'POST',
         credentials: 'include',
         mode: 'cors',
@@ -169,7 +168,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       
       // Additional step to get user profile information
       try {
-        const userDataResponse = await fetch(`/api/data`, {
+        const userDataResponse = await fetch(`${API_URL}/data`, {
           credentials: 'include',
           mode: 'cors',
           headers: {
@@ -270,7 +269,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
       
       // Real signup with Worker API
-      const response = await fetch(`/api/signup`, {
+      const response = await fetch(`${API_URL}/signup`, {
         method: 'POST',
         credentials: 'include',
         mode: 'cors',
@@ -325,7 +324,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (!MOCK_AUTH) {
       // For real API, make a logout request to invalidate server-side session
       // We're ignoring 404 errors since the endpoint might not exist yet
-      fetch(`/api/logout`, {
+      fetch(`${API_URL}/logout`, {
         method: 'POST',
         credentials: 'include',
         mode: 'cors',
@@ -373,7 +372,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
       
       // Real forgot password with Worker API
-      const response = await fetch(`/api/forgot-password`, {
+      const response = await fetch(`${API_URL}/forgot-password`, {
         method: 'POST',
         mode: 'cors',
         headers: {
@@ -431,7 +430,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
       
       // Real password reset with Worker API
-      const response = await fetch(`/api/reset-password`, {
+      const response = await fetch(`${API_URL}/reset-password`, {
         method: 'POST',
         mode: 'cors',
         headers: {
@@ -507,7 +506,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return false;
       }
       
-      const response = await fetch(`/api/delete-account`, {
+      const response = await fetch(`${API_URL}/delete-account`, {
         method: 'DELETE',
         credentials: 'include',
         mode: 'cors',
