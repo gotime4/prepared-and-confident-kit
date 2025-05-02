@@ -50,6 +50,7 @@ export const SupplyProvider: React.FC<SupplyProviderProps> = ({ children }) => {
   const [foodItems, setFoodItems] = useState<SupplyItem[]>([]);
   const [kitItems, setKitItems] = useState<SupplyItem[]>([]);
   const [isSyncing, setIsSyncing] = useState(false);
+  const [isDataLoaded, setIsDataLoaded] = useState(false);
   const { user, isAuthenticated } = useAuth();
 
   // Function to save data to the database
@@ -78,7 +79,7 @@ export const SupplyProvider: React.FC<SupplyProviderProps> = ({ children }) => {
     }
   };
 
-  // Load data from API when authenticated
+  // Load data from API when authenticated - this is the primary data source
   useEffect(() => {
     const loadData = async () => {
       if (!isAuthenticated || !user) return;
@@ -90,16 +91,24 @@ export const SupplyProvider: React.FC<SupplyProviderProps> = ({ children }) => {
       try {
         const userData = await fetchUserData(authToken);
         
+        // Only set data if we have items from the API
         if (userData.storage && userData.storage.length > 0) {
           setFoodItems(userData.storage);
+          // Save to localStorage as backup
+          localStorage.setItem('foodItems', JSON.stringify(userData.storage));
         }
         
         if (userData.kit && userData.kit.length > 0) {
           setKitItems(userData.kit);
+          // Save to localStorage as backup
+          localStorage.setItem('kitItems', JSON.stringify(userData.kit));
         }
+        
+        // Mark data as loaded from API
+        setIsDataLoaded(true);
       } catch (error) {
-        console.error('Failed to load data:', error);
-        // Don't show error toast on initial load, just load from localStorage as fallback
+        console.error('Failed to load data from API:', error);
+        // Don't show error toast on initial load, we'll fallback to localStorage
       } finally {
         setIsSyncing(false);
       }
@@ -108,34 +117,64 @@ export const SupplyProvider: React.FC<SupplyProviderProps> = ({ children }) => {
     loadData();
   }, [isAuthenticated, user]);
 
-  // Fallback to localStorage if no API data
+  // Fallback to localStorage if no API data - ONLY if API load hasn't succeeded
   useEffect(() => {
-    // Only load from localStorage if we don't have data from the API
-    if (foodItems.length === 0) {
-      const savedFoodItems = localStorage.getItem('foodItems');
-      if (savedFoodItems) {
-        setFoodItems(JSON.parse(savedFoodItems));
-      }
-    }
+    // Only load from localStorage if API data fetch is complete but returned no data
+    if (isDataLoaded) return;
     
-    if (kitItems.length === 0) {
-      const savedKitItems = localStorage.getItem('kitItems');
-      if (savedKitItems) {
-        setKitItems(JSON.parse(savedKitItems));
+    const loadFromLocalStorage = () => {
+      if (foodItems.length === 0) {
+        const savedFoodItems = localStorage.getItem('foodItems');
+        if (savedFoodItems) {
+          try {
+            const parsedItems = JSON.parse(savedFoodItems);
+            setFoodItems(parsedItems);
+            console.log('Loaded food items from localStorage');
+          } catch (e) {
+            console.error('Error parsing food items from localStorage:', e);
+          }
+        }
       }
-    }
-  }, [foodItems.length, kitItems.length]);
+      
+      if (kitItems.length === 0) {
+        const savedKitItems = localStorage.getItem('kitItems');
+        if (savedKitItems) {
+          try {
+            const parsedItems = JSON.parse(savedKitItems);
+            setKitItems(parsedItems);
+            console.log('Loaded kit items from localStorage');
+          } catch (e) {
+            console.error('Error parsing kit items from localStorage:', e);
+          }
+        }
+      }
+    };
+    
+    // Add a slight delay to ensure API had a chance to load first
+    const timer = setTimeout(() => {
+      loadFromLocalStorage();
+    }, 500);
+    
+    return () => clearTimeout(timer);
+  }, [isDataLoaded, foodItems.length, kitItems.length]);
 
   // Save to database whenever items change and user is authenticated
   useEffect(() => {
-    if (isAuthenticated && (foodItems.length > 0 || kitItems.length > 0)) {
+    if (isAuthenticated && user && (foodItems.length > 0 || kitItems.length > 0)) {
+      // Don't sync immediately on first load
+      if (!isDataLoaded) {
+        setIsDataLoaded(true);
+        return;
+      }
+      
       const debounceTimer = setTimeout(() => {
+        console.log('Syncing data to server...');
         saveDataToDb();
       }, 1000); // Debounce to prevent too many API calls
       
       return () => clearTimeout(debounceTimer);
     }
-  }, [foodItems, kitItems, isAuthenticated]);
+  }, [foodItems, kitItems, isAuthenticated, user, isDataLoaded]);
 
   // Also save to localStorage as fallback
   useEffect(() => {
