@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { toast } from "@/components/ui/use-toast";
 
@@ -23,6 +22,7 @@ interface AuthContextType {
   logout: () => void;
   forgotPassword: (email: string) => Promise<boolean>;
   resetPassword: (token: string, password: string) => Promise<boolean>;
+  deleteAccount: () => Promise<boolean>;
 }
 
 // Create the context
@@ -413,6 +413,88 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
   
+  // Delete account function
+  const deleteAccount = async (): Promise<boolean> => {
+    setIsLoading(true);
+    
+    try {
+      if (MOCK_AUTH) {
+        // Mock delete account for development
+        await new Promise(resolve => setTimeout(resolve, 800)); // Simulate API delay
+        
+        // Remove user from mock storage
+        if (user && user.id) {
+          delete MOCK_USERS[user.id];
+        }
+        
+        // Clear local storage and user state
+        localStorage.removeItem('user_info');
+        setUser(null);
+        
+        toast({
+          title: "Account Deleted",
+          description: "Your account has been permanently deleted.",
+          variant: "default"
+        });
+        
+        return true;
+      }
+      
+      // Real delete account with Worker API (requires user to be logged in)
+      if (!user) {
+        toast({
+          title: "Error",
+          description: "You must be logged in to delete your account.",
+          variant: "destructive"
+        });
+        return false;
+      }
+      
+      const response = await fetch(`${API_URL}/api/delete-account`, {
+        method: 'DELETE',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      });
+      
+      if (!response.ok) {
+        const data = await response.json();
+        toast({
+          title: "Delete Account Failed",
+          description: data.error || "Couldn't delete account",
+          variant: "destructive"
+        });
+        return false;
+      }
+      
+      // Clear local storage and user state
+      localStorage.removeItem('user_info');
+      setUser(null);
+      
+      // Optional: Clear cookie by setting an expired one
+      document.cookie = 'session=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+      
+      toast({
+        title: "Account Deleted",
+        description: "Your account has been permanently deleted.",
+        variant: "default"
+      });
+      
+      return true;
+    } catch (error) {
+      console.error('Delete account error:', error);
+      toast({
+        title: "Error",
+        description: "An unexpected error occurred. Please try again.",
+        variant: "destructive"
+      });
+      return false;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  
   // Context value
   const value = {
     user,
@@ -423,6 +505,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     logout,
     forgotPassword,
     resetPassword,
+    deleteAccount,
   };
   
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
