@@ -29,7 +29,7 @@ const WaterStorageSidebar = ({
           <CardContent className="p-6">
             <div className="mb-6">
               <QuantityCalculator 
-                defaultQuantity={peopleCount} 
+                value={peopleCount}
                 onChange={onPeopleChange}
               />
             </div>

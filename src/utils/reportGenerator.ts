@@ -118,7 +118,7 @@ export const generatePDF = (reportData: ReportData): void => {
     doc.text('Top Priority Items', 20, 20);
     
     // Create priority items table
-    autoTable(doc, {
+    const result = autoTable(doc, {
       startY: 30,
       head: [['Item', 'Category', 'Current', 'Needed']],
       body: priorityItems.map(item => [
@@ -145,7 +145,7 @@ export const generatePDF = (reportData: ReportData): void => {
     doc.text(
       'RECOMMENDATION: Focus on obtaining these priority items to quickly improve your preparedness score.',
       20,
-      doc.lastAutoTable.finalY + 20,
+      result.finalY + 20,
       { maxWidth: 170 }
     );
   }

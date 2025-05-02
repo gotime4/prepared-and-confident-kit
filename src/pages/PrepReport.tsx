@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -36,15 +35,13 @@ const PrepReport = () => {
 
   const handleDownloadPDF = () => {
     try {
-      const doc = generatePDF(
-        foodItems,
-        kitItems,
+      generatePDF({
+        foodProgress,
+        kitProgress,
         overallScore,
-        statusCounts,
-        priorities
-      );
-      
-      doc.save("Family_Readiness_Report.pdf");
+        priorityItems: priorities,
+        completedCounts: statusCounts
+      });
       
       toast({
         title: "Report Downloaded",
