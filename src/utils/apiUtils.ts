@@ -20,6 +20,8 @@ export const fetchUserData = async (authToken: string): Promise<ApiResponse> => 
         'Authorization': `Bearer ${authToken}`,
         'Content-Type': 'application/json',
       },
+      // Ensure we're not using cached data
+      cache: 'no-store',
     });
 
     if (!response.ok) {
@@ -45,13 +47,19 @@ export const saveUserData = async (
   try {
     console.log('Saving data to API...');
     
+    // Add timestamp to help see when data was updated
+    const dataToSave = {
+      ...data,
+      lastUpdated: new Date().toISOString()
+    };
+    
     const response = await fetch(`${API_URL}/data`, {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${authToken}`,
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(data),
+      body: JSON.stringify(dataToSave),
     });
 
     if (!response.ok) {
@@ -59,7 +67,8 @@ export const saveUserData = async (
       throw new Error(`Failed to save data: ${response.status}`);
     }
 
-    console.log('Data saved successfully');
+    const result = await response.json();
+    console.log('Data saved successfully', result);
     return true;
   } catch (error) {
     console.error('Error saving data:', error);
