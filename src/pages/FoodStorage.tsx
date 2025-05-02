@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import QuantityCalculator from "@/components/QuantityCalculator";
@@ -85,6 +85,23 @@ const FoodStorage = () => {
     return (BASE_AMOUNTS[itemId as keyof typeof BASE_AMOUNTS] || 0) * people;
   };
 
+  // Use a callback to ensure consistent behavior when updating recommended amounts
+  const updateRecommendedAmounts = useCallback((items: SupplyItem[], people: number) => {
+    const updatedItems = items.map(item => ({
+      ...item,
+      recommendedAmount: calculateRecommendedAmount(item.id, people)
+    }));
+    
+    // Update the component's state
+    setFoodItems(updatedItems);
+    
+    // Update the context to ensure cloud sync
+    updateFoodItemsRecommendedAmounts(updatedItems);
+    
+    return updatedItems;
+  }, [updateFoodItemsRecommendedAmounts]);
+
+  // Effect to initialize or update items when contextFoodItems or peopleCount changes
   useEffect(() => {
     // If we don't have any items from context yet, initialize them
     if (contextFoodItems.length === 0) {
@@ -142,17 +159,10 @@ const FoodStorage = () => {
       initializeFoodItems(initialItems);
       setFoodItems(initialItems);
     } else {
-      // Update the recommended amounts based on the current number of people
-      const updatedItems = contextFoodItems.map(item => ({
-        ...item,
-        recommendedAmount: calculateRecommendedAmount(item.id, peopleCount)
-      }));
-      
-      setFoodItems(updatedItems);
-      // Update the context with the new recommended amounts
-      updateFoodItemsRecommendedAmounts(updatedItems);
+      // Update with the current people count
+      updateRecommendedAmounts(contextFoodItems, peopleCount);
     }
-  }, [peopleCount, contextFoodItems, initializeFoodItems, updateFoodItemsRecommendedAmounts]);
+  }, [peopleCount, contextFoodItems, initializeFoodItems, updateRecommendedAmounts]);
 
   const handleQuantityChange = (newCount: number) => {
     // Save the people count to localStorage
@@ -168,11 +178,14 @@ const FoodStorage = () => {
   };
 
   const handleUpdateCurrentAmount = (id: string, amount: number) => {
+    // Update local state
     setFoodItems(prev => 
       prev.map(item => 
         item.id === id ? { ...item, currentAmount: amount } : item
       )
     );
+    
+    // Update the supply context (which will trigger database sync)
     updateFoodItem(id, amount);
   };
 
