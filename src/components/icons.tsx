@@ -8,6 +8,7 @@ import {
   XCircle,
   LogOut,
   Check,
+  Trash,
 } from "lucide-react";
 
 export const Icons = {
@@ -19,4 +20,5 @@ export const Icons = {
   error: XCircle,
   logout: LogOut,
   checkMark: Check,
+  trash: Trash,
 };
