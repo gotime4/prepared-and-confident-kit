@@ -33,6 +33,8 @@ export function UserProfile() {
 
   // Get initials from user's name
   const getInitials = (name: string) => {
+    if (!name) return "U"; // Default initial if no name
+    
     return name
       .split(' ')
       .map(word => word[0])

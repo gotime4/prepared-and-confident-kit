@@ -132,12 +132,44 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return false;
       }
       
-      // Assume additional user data like name would be returned in the response
-      // or could be fetched in a separate call
+      // Additional step to get user profile information
+      // In a real implementation, you might want to get more details about the user
+      try {
+        const userDataResponse = await fetch(`${API_URL}/api/data`, {
+          credentials: 'include',
+        });
+        
+        if (userDataResponse.ok) {
+          // Get user name from DB or use email as fallback
+          const userData = await userDataResponse.json();
+          
+          // Create user info object with available data
+          const userInfo = {
+            id: data.userId,
+            email: email,
+            name: userData.name || email.split('@')[0] // Fallback if name isn't provided
+          };
+          
+          localStorage.setItem('user_info', JSON.stringify(userInfo));
+          setUser(userInfo);
+          
+          toast({
+            title: "Login Successful",
+            description: "Welcome back!",
+            variant: "default"
+          });
+          
+          return true;
+        }
+      } catch (error) {
+        console.error("Error fetching user data:", error);
+      }
+      
+      // Fallback if user data fetch fails - still log the user in
       const userInfo = {
         id: data.userId,
         email: email,
-        name: data.name || email.split('@')[0] // Fallback if name isn't provided
+        name: email.split('@')[0] // Use first part of email as name
       };
       
       localStorage.setItem('user_info', JSON.stringify(userInfo));
@@ -246,6 +278,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   
   // Logout function
   const logout = () => {
+    if (!MOCK_AUTH) {
+      // For real API, make a logout request to invalidate server-side session
+      fetch(`${API_URL}/api/logout`, {
+        method: 'POST',
+        credentials: 'include'
+      }).catch(err => console.error("Logout request error:", err));
+    }
+    
     localStorage.removeItem('user_info');
     setUser(null);
     
@@ -264,9 +304,37 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setIsLoading(true);
     
     try {
-      // This would typically call an API endpoint, but we'll mock it
-      // In a real implementation, the worker would send an email with a reset link
-      await new Promise(r => setTimeout(r, 1000)); // Fake delay
+      if (MOCK_AUTH) {
+        // Mock forgot password flow
+        await new Promise(r => setTimeout(r, 1000)); // Fake delay
+        
+        toast({
+          title: "Password Reset Email Sent",
+          description: "If an account exists with that email, you'll receive a reset link",
+          variant: "default"
+        });
+        
+        return true;
+      }
+      
+      // Real forgot password with Worker API
+      const response = await fetch(`${API_URL}/api/forgot-password`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email }),
+      });
+      
+      if (!response.ok) {
+        const data = await response.json();
+        toast({
+          title: "Error",
+          description: data.error || "Failed to process password reset request",
+          variant: "destructive"
+        });
+        return false;
+      }
       
       toast({
         title: "Password Reset Email Sent",
@@ -293,8 +361,37 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setIsLoading(true);
     
     try {
-      // This would typically call an API endpoint, but we'll mock it
-      await new Promise(r => setTimeout(r, 1000)); // Fake delay
+      if (MOCK_AUTH) {
+        // Mock reset password flow
+        await new Promise(r => setTimeout(r, 1000)); // Fake delay
+        
+        toast({
+          title: "Password Reset Successful",
+          description: "Your password has been updated",
+          variant: "default"
+        });
+        
+        return true;
+      }
+      
+      // Real password reset with Worker API
+      const response = await fetch(`${API_URL}/api/reset-password`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ token, password }),
+      });
+      
+      if (!response.ok) {
+        const data = await response.json();
+        toast({
+          title: "Error",
+          description: data.error || "Failed to reset password",
+          variant: "destructive"
+        });
+        return false;
+      }
       
       toast({
         title: "Password Reset Successful",
