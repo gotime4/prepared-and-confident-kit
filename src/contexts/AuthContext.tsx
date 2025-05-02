@@ -2,8 +2,10 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { toast } from "@/components/ui/use-toast";
 
-// API URL for Cloudflare Worker
-const API_URL = 'https://prepper-auth-worker.your-domain.workers.dev';
+// API URL for Cloudflare Worker - make it a variable for easier configuration
+// Note: For local development without a real Worker, set MOCK_AUTH=true
+const MOCK_AUTH = true; // Set to false when you have a real Worker deployed
+const API_URL = MOCK_AUTH ? null : 'https://prepper-auth-worker.your-domain.workers.dev';
 
 // Define types for user and context
 interface User {
@@ -26,6 +28,11 @@ interface AuthContextType {
 // Create the context
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+// Mock user data for development
+const MOCK_USERS: Record<string, User> = {
+  '1': { id: '1', name: 'Test User', email: 'test@example.com' }
+};
+
 // Provider component
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
@@ -35,6 +42,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const checkAuth = async () => {
       try {
+        if (MOCK_AUTH) {
+          // Mock authentication check - look for stored user in localStorage
+          const storedUser = localStorage.getItem('user_info');
+          if (storedUser) {
+            setUser(JSON.parse(storedUser));
+          }
+          setIsLoading(false);
+          return;
+        }
+        
+        // Real authentication check with Worker API
         const response = await fetch(`${API_URL}/api/data`, {
           credentials: 'include'
         });
@@ -66,6 +84,34 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setIsLoading(true);
     
     try {
+      if (MOCK_AUTH) {
+        // Mock login for development
+        await new Promise(resolve => setTimeout(resolve, 800)); // Simulate API delay
+        
+        // Basic validation
+        if (email === 'test@example.com' && password === 'password') {
+          const userInfo = MOCK_USERS['1'];
+          localStorage.setItem('user_info', JSON.stringify(userInfo));
+          setUser(userInfo);
+          
+          toast({
+            title: "Login Successful",
+            description: "Welcome back!",
+            variant: "default"
+          });
+          
+          return true;
+        } else {
+          toast({
+            title: "Login Failed",
+            description: "Invalid email or password",
+            variant: "destructive"
+          });
+          return false;
+        }
+      }
+      
+      // Real login with Worker API
       const response = await fetch(`${API_URL}/api/login`, {
         method: 'POST',
         credentials: 'include',
@@ -122,6 +168,33 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setIsLoading(true);
     
     try {
+      if (MOCK_AUTH) {
+        // Mock signup for development
+        await new Promise(resolve => setTimeout(resolve, 800)); // Simulate API delay
+        
+        // Create a new mock user
+        const userId = Date.now().toString();
+        const userInfo = {
+          id: userId,
+          email: email,
+          name: name
+        };
+        
+        // Store in mock users and localStorage
+        MOCK_USERS[userId] = userInfo;
+        localStorage.setItem('user_info', JSON.stringify(userInfo));
+        setUser(userInfo);
+        
+        toast({
+          title: "Account Created",
+          description: "Your account has been created successfully!",
+          variant: "default"
+        });
+        
+        return true;
+      }
+      
+      // Real signup with Worker API
       const response = await fetch(`${API_URL}/api/signup`, {
         method: 'POST',
         credentials: 'include',

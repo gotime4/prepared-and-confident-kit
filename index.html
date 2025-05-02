@@ -17,8 +17,8 @@
     <meta name="twitter:site" content="@lovable_dev" />
     <meta name="twitter:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
     
-    <!-- CSP to allow Cloudflare Worker API -->
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; connect-src 'self' *.workers.dev *.cloudflareaccess.com; script-src 'self' 'unsafe-inline' https://cdn.gpteng.co; style-src 'self' 'unsafe-inline';">
+    <!-- CSP to allow Cloudflare Worker API and images -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; connect-src 'self' *.workers.dev *.cloudflareaccess.com; script-src 'self' 'unsafe-inline' https://cdn.gpteng.co; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://* http://*;">
   </head>
 
   <body>

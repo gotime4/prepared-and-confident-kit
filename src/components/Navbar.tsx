@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Box, Utensils, Droplets, Menu, X, ExternalLink, FileText } from "lucide-react";
+import { UserProfile } from "./UserProfile";
 
 interface NavLinkProps {
   to: string;
@@ -68,6 +69,11 @@ const Navbar = () => {
             <NavLink to="/report" icon={<FileText size={18} />} label="Readiness Report" isScrolled={isScrolled} />
             <NavLink to="/resources" icon={<ExternalLink size={18} />} label="Resources" isScrolled={isScrolled} />
           </nav>
+
+          {/* User Profile / Login Button */}
+          <div className="flex items-center ml-4">
+            <UserProfile />
+          </div>
 
           {/* Mobile Menu Button */}
           <button

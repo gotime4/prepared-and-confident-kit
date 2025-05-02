@@ -23,7 +23,9 @@ export function UserProfile() {
         variant="outline" 
         onClick={() => navigate("/login")}
         className="ml-auto"
+        size="sm"
       >
+        <Icons.user className="mr-2 h-4 w-4" />
         Sign in
       </Button>
     );
