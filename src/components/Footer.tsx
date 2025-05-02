@@ -8,7 +8,7 @@ const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div className="col-span-1 md:col-span-2">
             <Link to="/" className="text-lg font-medium">
-              Self-Reliance Guide
+              RelianceHQ
             </Link>
             <p className="mt-2 text-sm text-gray-500 max-w-md">
               Empowering individuals and families with the knowledge and tools to be prepared,
@@ -60,7 +60,7 @@ const Footer = () => {
         </div>
         <div className="mt-8 border-t border-gray-100 pt-8 flex flex-col md:flex-row justify-between items-center">
           <p className="text-xs text-gray-500">
-            © {new Date().getFullYear()} Self-Reliance Guide. All rights reserved.
+            © {new Date().getFullYear()} RelianceHQ. All rights reserved.
           </p>
           <div className="mt-4 md:mt-0 flex space-x-4">
             <a href="mailto:rhq@pm.me" className="text-gray-400 hover:text-gray-500">
