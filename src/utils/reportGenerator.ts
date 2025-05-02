@@ -139,15 +139,17 @@ export const generatePDF = (reportData: ReportData): void => {
       },
     });
     
-    // Add recommendation text
-    doc.setFontSize(12);
-    doc.setTextColor('#64748b');
-    doc.text(
-      'RECOMMENDATION: Focus on obtaining these priority items to quickly improve your preparedness score.',
-      20,
-      result.finalY + 20,
-      { maxWidth: 170 }
-    );
+    // Add recommendation text - fixed by properly typing 'result' from autoTable
+    if (result && typeof result === 'object' && 'finalY' in result) {
+      doc.setFontSize(12);
+      doc.setTextColor('#64748b');
+      doc.text(
+        'RECOMMENDATION: Focus on obtaining these priority items to quickly improve your preparedness score.',
+        20,
+        result.finalY + 20,
+        { maxWidth: 170 }
+      );
+    }
   }
   
   // Add footer
