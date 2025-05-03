@@ -52,11 +52,12 @@ const areSupplyItemsEqual = (arr1: SupplyItem[], arr2: SupplyItem[]): boolean =>
 };
 
 const KitPage = () => {
-  const [peopleCount, setPeopleCount] = useState(1);
   const { 
     kitItems: contextKitItems, 
     updateKitItem, 
-    initializeKitItems 
+    initializeKitItems,
+    kitPeopleCount,
+    setKitPeopleCount
   } = useSupply();
   const [categories, setCategories] = useState<KitCategory[]>([
     {
@@ -126,7 +127,7 @@ const KitPage = () => {
         category.items.map(item => ({
           id: item.id,
           name: item.name,
-          recommendedAmount: calculateItemQuantity(item.quantity, item.personMultiplier),
+          recommendedAmount: calculateItemQuantity(item.quantity, item.personMultiplier, kitPeopleCount),
           currentAmount: 0,
           unit: "quantity",
           category: category.title,
@@ -139,10 +140,10 @@ const KitPage = () => {
         initializeKitItems(initialKitItems);
       }
     }
-  }, [categories, contextKitItems, peopleCount, initializeKitItems]);
+  }, [categories, contextKitItems, kitPeopleCount, initializeKitItems]);
 
   const handleQuantityChange = (newCount: number) => {
-    setPeopleCount(newCount);
+    setKitPeopleCount(newCount);
     
     // Update categories with new quantities
     setCategories(prevCategories => 
@@ -181,7 +182,7 @@ const KitPage = () => {
     }));
   };
 
-  const calculateItemQuantity = (baseQuantity: number, multiplier: number | undefined, count = peopleCount) => {
+  const calculateItemQuantity = (baseQuantity: number, multiplier: number | undefined, count = kitPeopleCount) => {
     if (multiplier) {
       return baseQuantity * count;
     }
@@ -225,9 +226,9 @@ const KitPage = () => {
           <div className="lg:col-span-1">
             <div className="space-y-6 sticky top-24">
               <QuantityCalculator 
-                defaultQuantity={peopleCount} 
+                defaultQuantity={kitPeopleCount} 
                 onChange={handleQuantityChange}
-                value={peopleCount}
+                value={kitPeopleCount}
               />
 
               <Card className="border-gray-100">

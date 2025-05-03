@@ -20,6 +20,8 @@ interface SupplyContextType {
   kitItems: SupplyItem[];
   peopleCount: number;
   setPeopleCount: (count: number) => void;
+  kitPeopleCount: number;
+  setKitPeopleCount: (count: number) => void;
   updateFoodItem: (id: string, amount: number) => void;
   updateKitItem: (id: string, amount: number, recommendedAmount?: number) => void;
   initializeFoodItems: (items: SupplyItem[]) => void;
@@ -109,6 +111,10 @@ export const SupplyProvider: React.FC<SupplyProviderProps> = ({ children }) => {
     const saved = localStorage.getItem('foodPeopleCount');
     return saved ? parseInt(saved) : 1;
   });
+  const [kitPeopleCount, setKitPeopleCount] = useState<number>(() => {
+    const saved = localStorage.getItem('kitPeopleCount');
+    return saved ? parseInt(saved) : 1;
+  });
 
   // Add debugging info on mount
   useEffect(() => {
@@ -155,6 +161,11 @@ export const SupplyProvider: React.FC<SupplyProviderProps> = ({ children }) => {
         if (userData.peopleCount && !isNaN(userData.peopleCount)) {
           setPeopleCount(userData.peopleCount);
           localStorage.setItem('foodPeopleCount', String(userData.peopleCount));
+        }
+
+        if (userData.kitPeopleCount && !isNaN(userData.kitPeopleCount)) {
+          setKitPeopleCount(userData.kitPeopleCount);
+          localStorage.setItem('kitPeopleCount', String(userData.kitPeopleCount));
         }
         
         setIsDataLoaded(true);
@@ -215,6 +226,10 @@ export const SupplyProvider: React.FC<SupplyProviderProps> = ({ children }) => {
     localStorage.setItem('foodPeopleCount', String(peopleCount));
   }, [peopleCount]);
 
+  useEffect(() => {
+    localStorage.setItem('kitPeopleCount', String(kitPeopleCount));
+  }, [kitPeopleCount]);
+
   // Function to save data to the database
   const saveDataToDb = useCallback(async () => {
     console.log('saveDataToDb called with auth state:', { 
@@ -244,6 +259,7 @@ export const SupplyProvider: React.FC<SupplyProviderProps> = ({ children }) => {
         kit: kitItems,
         storage: foodItems,
         peopleCount,
+        kitPeopleCount,
         report: null // For future report data
       });
       
@@ -274,7 +290,7 @@ export const SupplyProvider: React.FC<SupplyProviderProps> = ({ children }) => {
       setIsSyncing(false);
       isSyncingRef.current = false;
     }
-  }, [isAuthenticated, user, kitItems, foodItems, peopleCount]);
+  }, [isAuthenticated, user, kitItems, foodItems, peopleCount, kitPeopleCount]);
 
   // Save to database whenever items change and user is authenticated
   useEffect(() => {
@@ -421,6 +437,8 @@ export const SupplyProvider: React.FC<SupplyProviderProps> = ({ children }) => {
     kitItems,
     peopleCount,
     setPeopleCount,
+    kitPeopleCount,
+    setKitPeopleCount,
     updateFoodItem,
     updateKitItem,
     initializeFoodItems,
