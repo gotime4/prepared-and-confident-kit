@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode, useRef } from 'react';
+import React, { createContext, useContext, useState, useEffect, ReactNode, useRef, useCallback } from 'react';
 import { useAuth } from './AuthContext';
 import { fetchUserData, saveUserData } from '@/utils/apiUtils';
 import { toast } from "@/components/ui/use-toast";
@@ -43,6 +43,55 @@ export const useSupply = () => {
 interface SupplyProviderProps {
   children: ReactNode;
 }
+
+// Add these helper functions at the top before the SupplyProvider component
+const deepEqual = (a: any, b: any): boolean => {
+  if (a === b) return true;
+  
+  if (typeof a !== 'object' || a === null || typeof b !== 'object' || b === null) {
+    return false;
+  }
+
+  const keysA = Object.keys(a);
+  const keysB = Object.keys(b);
+
+  if (keysA.length !== keysB.length) return false;
+
+  for (const key of keysA) {
+    if (!keysB.includes(key)) return false;
+    if (!deepEqual(a[key], b[key])) return false;
+  }
+
+  return true;
+};
+
+// Helper for comparing arrays of SupplyItems
+const areSupplyItemsEqual = (arr1: SupplyItem[], arr2: SupplyItem[]): boolean => {
+  if (arr1.length !== arr2.length) return false;
+  
+  // Create maps for faster lookups
+  const map1 = new Map<string, SupplyItem>();
+  arr1.forEach(item => map1.set(item.id, item));
+  
+  // Compare each item from arr2 with corresponding item in arr1
+  for (const item2 of arr2) {
+    const item1 = map1.get(item2.id);
+    if (!item1) return false;
+    
+    // Compare only the relevant properties
+    if (
+      item1.currentAmount !== item2.currentAmount ||
+      item1.recommendedAmount !== item2.recommendedAmount ||
+      item1.name !== item2.name ||
+      item1.unit !== item2.unit ||
+      item1.category !== item2.category
+    ) {
+      return false;
+    }
+  }
+  
+  return true;
+};
 
 export const SupplyProvider: React.FC<SupplyProviderProps> = ({ children }) => {
   // Initialize with empty arrays
@@ -151,7 +200,7 @@ export const SupplyProvider: React.FC<SupplyProviderProps> = ({ children }) => {
   }, [isDataLoaded, foodItems.length, kitItems.length]);
 
   // Function to save data to the database
-  const saveDataToDb = async () => {
+  const saveDataToDb = useCallback(async () => {
     console.log('saveDataToDb called with auth state:', { 
       isAuthenticated, 
       hasUser: !!user,
@@ -208,7 +257,7 @@ export const SupplyProvider: React.FC<SupplyProviderProps> = ({ children }) => {
       setIsSyncing(false);
       isSyncingRef.current = false;
     }
-  };
+  }, [isAuthenticated, user, kitItems, foodItems]);
 
   // Save to database whenever items change and user is authenticated
   useEffect(() => {
@@ -219,8 +268,8 @@ export const SupplyProvider: React.FC<SupplyProviderProps> = ({ children }) => {
     
     if (isAuthenticated && !isSyncingRef.current) {
       const hasStateChanged =
-        JSON.stringify(lastSyncedStateRef.current.foodItems) !== JSON.stringify(foodItems) ||
-        JSON.stringify(lastSyncedStateRef.current.kitItems) !== JSON.stringify(kitItems);
+        !areSupplyItemsEqual(lastSyncedStateRef.current.foodItems, foodItems) ||
+        !areSupplyItemsEqual(lastSyncedStateRef.current.kitItems, kitItems);
 
       if (hasStateChanged) {
         console.log('Items changed, scheduling sync to server...');
@@ -236,7 +285,7 @@ export const SupplyProvider: React.FC<SupplyProviderProps> = ({ children }) => {
     } else {
       console.log('Not authenticated or already syncing, not saving to server');
     }
-  }, [foodItems, kitItems, isAuthenticated, isDataLoaded]);
+  }, [foodItems, kitItems, isAuthenticated, isDataLoaded, saveDataToDb]);
 
   // Also save to localStorage as fallback
   useEffect(() => {
