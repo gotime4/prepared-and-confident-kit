@@ -1,4 +1,3 @@
-
 import React from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -11,8 +10,8 @@ const FamilyEmergencyPlan = () => {
       <Navbar />
       <div className="flex-grow">
         {/* Hero Section */}
-        <div className="bg-slate-50 py-12">
-          <div className="container mx-auto px-4">
+        <div className="bg-slate-50 py-16">
+          <div className="container mx-auto px-4 flex flex-col items-center text-center">
             <h1 className="text-3xl md:text-4xl font-bold mb-4">Family Emergency Plan</h1>
             <p className="text-lg text-gray-700 max-w-3xl">
               Create a comprehensive emergency plan for your family to ensure everyone knows what to do
