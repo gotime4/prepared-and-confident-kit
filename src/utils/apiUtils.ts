@@ -9,6 +9,14 @@ export interface ApiResponse {
   [key: string]: any;
 }
 
+export interface SaveUserDataPayload {
+  kit: any[];
+  storage: any[];
+  report: any;
+  peopleCount?: number;
+  kitPeopleCount?: number;
+}
+
 // Function to fetch all user data
 export const fetchUserData = async (authToken: string): Promise<ApiResponse> => {
   try {
@@ -53,7 +61,7 @@ export const fetchUserData = async (authToken: string): Promise<ApiResponse> => 
 // Function to save user data
 export const saveUserData = async (
   authToken: string, 
-  data: { kit: any[], storage: any[], report: any }
+  data: SaveUserDataPayload
 ): Promise<boolean> => {
   try {
     console.log('Saving data to API...');

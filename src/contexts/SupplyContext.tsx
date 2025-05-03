@@ -261,7 +261,7 @@ export const SupplyProvider: React.FC<SupplyProviderProps> = ({ children }) => {
         peopleCount,
         kitPeopleCount,
         report: null // For future report data
-      });
+      } as any);
       
       if (result) {
         console.log('Data saved to database successfully');
