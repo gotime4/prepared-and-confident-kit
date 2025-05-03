@@ -65,6 +65,27 @@ const BASE_AMOUNTS = {
   "banana-chips": 2
 };
 
+// Helper for comparing arrays of SupplyItems
+const areSupplyItemsEqual = (arr1: SupplyItem[], arr2: SupplyItem[]): boolean => {
+  if (arr1.length !== arr2.length) return false;
+  const map1 = new Map<string, SupplyItem>();
+  arr1.forEach(item => map1.set(item.id, item));
+  for (const item2 of arr2) {
+    const item1 = map1.get(item2.id);
+    if (!item1) return false;
+    if (
+      item1.currentAmount !== item2.currentAmount ||
+      item1.recommendedAmount !== item2.recommendedAmount ||
+      item1.name !== item2.name ||
+      item1.unit !== item2.unit ||
+      item1.category !== item2.category
+    ) {
+      return false;
+    }
+  }
+  return true;
+};
+
 const FoodStorage = () => {
   // Initialize peopleCount from localStorage or default to 1
   const [peopleCount, setPeopleCount] = useState(() => {
@@ -103,7 +124,6 @@ const FoodStorage = () => {
 
   // Effect to initialize or update items when contextFoodItems or peopleCount changes
   useEffect(() => {
-    // If we don't have any items from context yet, initialize them
     if (contextFoodItems.length === 0) {
       const initialItems: SupplyItem[] = [
         // Grains
@@ -154,15 +174,25 @@ const FoodStorage = () => {
         { id: "apple-slices", name: "Apple Slices", recommendedAmount: calculateRecommendedAmount("apple-slices", peopleCount), currentAmount: 0, unit: "lbs", category: "Dried Fruits", type: "food" },
         { id: "banana-chips", name: "Banana Chips", recommendedAmount: calculateRecommendedAmount("banana-chips", peopleCount), currentAmount: 0, unit: "lbs", category: "Dried Fruits", type: "food" },
       ];
-      
-      // Initialize the food items in the context
-      initializeFoodItems(initialItems);
-      setFoodItems(initialItems);
+      // Only initialize if different
+      if (!areSupplyItemsEqual(contextFoodItems, initialItems)) {
+        initializeFoodItems(initialItems);
+        setFoodItems(initialItems);
+      }
     } else {
-      // Update with the current people count
-      updateRecommendedAmounts(contextFoodItems, peopleCount);
+      // Only update if recommended amounts actually changed
+      const updatedItems = contextFoodItems.map(item => ({
+        ...item,
+        recommendedAmount: calculateRecommendedAmount(item.id, peopleCount)
+      }));
+      if (!areSupplyItemsEqual(contextFoodItems, updatedItems)) {
+        updateFoodItemsRecommendedAmounts(updatedItems);
+        setFoodItems(updatedItems);
+      } else {
+        setFoodItems(contextFoodItems);
+      }
     }
-  }, [peopleCount, contextFoodItems, initializeFoodItems, updateRecommendedAmounts]);
+  }, [peopleCount, contextFoodItems, initializeFoodItems, updateFoodItemsRecommendedAmounts]);
 
   const handleQuantityChange = (newCount: number) => {
     // Save the people count to localStorage

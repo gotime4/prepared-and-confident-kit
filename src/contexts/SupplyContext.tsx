@@ -300,60 +300,51 @@ export const SupplyProvider: React.FC<SupplyProviderProps> = ({ children }) => {
     }
   }, [kitItems]);
 
-  // Initialize food items (for first time setup)
-  const initializeFoodItems = (items: SupplyItem[]) => {
-    // Only initialize if we don't already have items
-    if (foodItems.length === 0) {
-      console.log(`Initializing ${items.length} food items`);
-      setFoodItems(items);
-    }
-  };
-
-  // Initialize kit items (for first time setup)
-  const initializeKitItems = (items: SupplyItem[]) => {
-    // Only initialize if we don't already have items
-    if (kitItems.length === 0) {
-      console.log(`Initializing ${items.length} kit items`);
-      setKitItems(items);
-    }
-  };
-
-  // Update a food item's current amount
-  const updateFoodItem = (id: string, amount: number) => {
-    setFoodItems(prev => 
-      prev.map(item => 
-        item.id === id ? { ...item, currentAmount: amount } : item
-      )
-    );
-  };
-
-  // Update a kit item's current amount
-  const updateKitItem = (id: string, amount: number, recommendedAmount?: number) => {
-    setKitItems(prev => 
-      prev.map(item => 
-        item.id === id ? 
-          { 
-            ...item, 
-            currentAmount: amount,
-            ...(recommendedAmount !== undefined && { recommendedAmount })
-          } 
+  // Memoized and guarded context setters
+  const updateFoodItem = useCallback((id: string, amount: number) => {
+    setFoodItems(prev => {
+      const updated = prev.map(item =>
+        item.id === id && item.currentAmount !== amount
+          ? { ...item, currentAmount: amount }
           : item
-      )
-    );
-  };
+      );
+      return areSupplyItemsEqual(prev, updated) ? prev : updated;
+    });
+  }, []);
 
-  // Update recommended amounts for food items
-  const updateFoodItemsRecommendedAmounts = (items: SupplyItem[]) => {
-    setFoodItems(prev => 
-      prev.map(item => {
+  const updateKitItem = useCallback((id: string, amount: number, recommendedAmount?: number) => {
+    setKitItems(prev => {
+      const updated = prev.map(item =>
+        item.id === id && (item.currentAmount !== amount || (recommendedAmount !== undefined && item.recommendedAmount !== recommendedAmount))
+          ? { ...item, currentAmount: amount, ...(recommendedAmount !== undefined && { recommendedAmount }) }
+          : item
+      );
+      return areSupplyItemsEqual(prev, updated) ? prev : updated;
+    });
+  }, []);
+
+  const initializeFoodItems = useCallback((items: SupplyItem[]) => {
+    setFoodItems(prev => (prev.length === 0 && items.length > 0 ? items : prev));
+  }, []);
+
+  const initializeKitItems = useCallback((items: SupplyItem[]) => {
+    setKitItems(prev => (prev.length === 0 && items.length > 0 ? items : prev));
+  }, []);
+
+  const updateFoodItemsRecommendedAmounts = useCallback((items: SupplyItem[]) => {
+    setFoodItems(prev => {
+      let changed = false;
+      const updated = prev.map(item => {
         const updatedItem = items.find(updated => updated.id === item.id);
-        return updatedItem ? { 
-          ...item, 
-          recommendedAmount: updatedItem.recommendedAmount
-        } : item;
-      })
-    );
-  };
+        if (updatedItem && item.recommendedAmount !== updatedItem.recommendedAmount) {
+          changed = true;
+          return { ...item, recommendedAmount: updatedItem.recommendedAmount };
+        }
+        return item;
+      });
+      return changed ? updated : prev;
+    });
+  }, []);
 
   // Calculate progress percentage for a list of items
   const calculateProgress = (items: SupplyItem[]): number => {

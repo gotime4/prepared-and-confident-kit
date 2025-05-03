@@ -30,6 +30,27 @@ interface KitCategory {
   }>;
 }
 
+// Helper for comparing arrays of SupplyItems
+const areSupplyItemsEqual = (arr1: SupplyItem[], arr2: SupplyItem[]): boolean => {
+  if (arr1.length !== arr2.length) return false;
+  const map1 = new Map<string, SupplyItem>();
+  arr1.forEach(item => map1.set(item.id, item));
+  for (const item2 of arr2) {
+    const item1 = map1.get(item2.id);
+    if (!item1) return false;
+    if (
+      item1.currentAmount !== item2.currentAmount ||
+      item1.recommendedAmount !== item2.recommendedAmount ||
+      item1.name !== item2.name ||
+      item1.unit !== item2.unit ||
+      item1.category !== item2.category
+    ) {
+      return false;
+    }
+  }
+  return true;
+};
+
 const KitPage = () => {
   const [peopleCount, setPeopleCount] = useState(1);
   const { 
@@ -113,10 +134,12 @@ const KitPage = () => {
         }))
       );
       
-      // Store these items in the context using the new initialize function
-      initializeKitItems(initialKitItems);
+      // Only initialize if different
+      if (!areSupplyItemsEqual(contextKitItems, initialKitItems)) {
+        initializeKitItems(initialKitItems);
+      }
     }
-  }, [categories, contextKitItems.length, peopleCount, initializeKitItems]);
+  }, [categories, contextKitItems, peopleCount, initializeKitItems]);
 
   const handleQuantityChange = (newCount: number) => {
     setPeopleCount(newCount);
