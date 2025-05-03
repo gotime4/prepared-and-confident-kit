@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, ReactNode, useRef } from 'react';
 import { useAuth } from './AuthContext';
 import { fetchUserData, saveUserData } from '@/utils/apiUtils';
 import { toast } from "@/components/ui/use-toast";
@@ -51,6 +51,7 @@ export const SupplyProvider: React.FC<SupplyProviderProps> = ({ children }) => {
   const [isSyncing, setIsSyncing] = useState(false);
   const [isDataLoaded, setIsDataLoaded] = useState(false);
   const { user, isAuthenticated } = useAuth();
+  const isSyncingRef = useRef(false);
 
   // Add debugging info on mount
   useEffect(() => {
@@ -76,6 +77,7 @@ export const SupplyProvider: React.FC<SupplyProviderProps> = ({ children }) => {
       }
       
       setIsSyncing(true);
+      isSyncingRef.current = true;
       try {
         console.log('Loading data from API...');
         const userData = await fetchUserData(authToken);
@@ -104,6 +106,7 @@ export const SupplyProvider: React.FC<SupplyProviderProps> = ({ children }) => {
         // We'll fall back to localStorage below
       } finally {
         setIsSyncing(false);
+        isSyncingRef.current = false;
       }
     };
     
@@ -167,6 +170,7 @@ export const SupplyProvider: React.FC<SupplyProviderProps> = ({ children }) => {
     }
     
     setIsSyncing(true);
+    isSyncingRef.current = true;
     try {
       console.log('Attempting to save data to server...');
       const result = await saveUserData(authToken, {
@@ -199,6 +203,7 @@ export const SupplyProvider: React.FC<SupplyProviderProps> = ({ children }) => {
       });
     } finally {
       setIsSyncing(false);
+      isSyncingRef.current = false;
     }
   };
 
@@ -209,7 +214,7 @@ export const SupplyProvider: React.FC<SupplyProviderProps> = ({ children }) => {
       return;
     }
     
-    if (isAuthenticated) {
+    if (isAuthenticated && !isSyncingRef.current) {
       console.log('Items changed, scheduling sync to server...');
       const debounceTimer = setTimeout(() => {
         saveDataToDb();
@@ -217,7 +222,7 @@ export const SupplyProvider: React.FC<SupplyProviderProps> = ({ children }) => {
       
       return () => clearTimeout(debounceTimer);
     } else {
-      console.log('Not authenticated, not saving to server');
+      console.log('Not authenticated or already syncing, not saving to server');
     }
   }, [foodItems, kitItems, isAuthenticated, isDataLoaded]);
 
