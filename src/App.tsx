@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -18,6 +19,7 @@ import MissionPage from "./pages/MissionPage";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsOfUse from "./pages/TermsOfUse";
 import Account from "./pages/Account";
+import FamilyEmergencyPlan from "./pages/FamilyEmergencyPlan";
 import { SupplyProvider } from "./contexts/SupplyContext";
 import { AuthProvider } from "./contexts/AuthContext";
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -43,6 +45,7 @@ const App = () => (
               <Route path="/terms" element={<TermsOfUse />} />
               <Route path="/water" element={<WaterStorage />} />
               <Route path="/resources" element={<TrustedResources />} />
+              <Route path="/family-emergency-plan" element={<FamilyEmergencyPlan />} />
               
               {/* Protected Routes */}
               <Route path="/" element={

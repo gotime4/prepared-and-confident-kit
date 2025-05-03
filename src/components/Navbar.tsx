@@ -1,8 +1,17 @@
 
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { Box, Utensils, Droplets, Menu, X, ExternalLink, FileText } from "lucide-react";
+import { Box, Utensils, Droplets, Menu, X, ExternalLink, FileText, Home, ChevronDown, BookOpen } from "lucide-react";
 import { UserProfile } from "./UserProfile";
+import {
+  NavigationMenu,
+  NavigationMenuContent,
+  NavigationMenuItem,
+  NavigationMenuLink,
+  NavigationMenuList,
+  NavigationMenuTrigger,
+} from "@/components/ui/navigation-menu";
+import { cn } from "@/lib/utils";
 
 interface NavLinkProps {
   to: string;
@@ -42,6 +51,32 @@ const Navbar = () => {
     setMobileMenuOpen(!mobileMenuOpen);
   };
 
+  const ListItem = React.forwardRef<
+    React.ElementRef<"a">,
+    React.ComponentPropsWithoutRef<"a">
+  >(({ className, title, children, ...props }, ref) => {
+    return (
+      <li>
+        <NavigationMenuLink asChild>
+          <a
+            ref={ref}
+            className={cn(
+              "block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground",
+              className
+            )}
+            {...props}
+          >
+            <div className="text-sm font-medium leading-none">{title}</div>
+            <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
+              {children}
+            </p>
+          </a>
+        </NavigationMenuLink>
+      </li>
+    );
+  });
+  ListItem.displayName = "ListItem";
+
   return (
     <div 
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
@@ -63,11 +98,61 @@ const Navbar = () => {
 
           {/* Navigation Links - Desktop */}
           <nav className="hidden md:flex items-center space-x-1">
-            <NavLink to="/kit" icon={<Box size={18} />} label="72-Hour Kits" isScrolled={isScrolled} />
-            <NavLink to="/food" icon={<Utensils size={18} />} label="Food Storage" isScrolled={isScrolled} />
-            <NavLink to="/water" icon={<Droplets size={18} />} label="Water Storage" isScrolled={isScrolled} />
-            <NavLink to="/report" icon={<FileText size={18} />} label="Readiness Report" isScrolled={isScrolled} />
-            <NavLink to="/resources" icon={<ExternalLink size={18} />} label="Resources" isScrolled={isScrolled} />
+            {/* Dropdown Menu */}
+            <NavigationMenu>
+              <NavigationMenuList>
+                <NavigationMenuItem>
+                  <NavigationMenuTrigger className="bg-transparent hover:bg-gray-100">
+                    <div className="flex items-center">
+                      <Home size={18} className="mr-2" />
+                      <span>Prepare Your Home</span>
+                    </div>
+                  </NavigationMenuTrigger>
+                  <NavigationMenuContent>
+                    <ul className="grid w-[400px] gap-2 p-4">
+                      <Link to="/kit" className="group">
+                        <ListItem title="72-Hour Kits">
+                          <div className="flex items-center">
+                            <Box size={16} className="mr-2 text-sky-600" />
+                            <span>Essential supplies for immediate emergency response</span>
+                          </div>
+                        </ListItem>
+                      </Link>
+                      <Link to="/food" className="group">
+                        <ListItem title="Food Storage">
+                          <div className="flex items-center">
+                            <Utensils size={16} className="mr-2 text-sky-600" />
+                            <span>Long-term food preparation and storage strategies</span>
+                          </div>
+                        </ListItem>
+                      </Link>
+                      <Link to="/water" className="group">
+                        <ListItem title="Water Storage">
+                          <div className="flex items-center">
+                            <Droplets size={16} className="mr-2 text-sky-600" />
+                            <span>Water storage and purification methods</span>
+                          </div>
+                        </ListItem>
+                      </Link>
+                      <Link to="/family-emergency-plan" className="group">
+                        <ListItem title="Family Emergency Plan">
+                          <div className="flex items-center">
+                            <BookOpen size={16} className="mr-2 text-sky-600" />
+                            <span>Create and maintain a household emergency plan</span>
+                          </div>
+                        </ListItem>
+                      </Link>
+                    </ul>
+                  </NavigationMenuContent>
+                </NavigationMenuItem>
+                <NavigationMenuItem>
+                  <NavLink to="/report" icon={<FileText size={18} />} label="Readiness Report" isScrolled={isScrolled} />
+                </NavigationMenuItem>
+                <NavigationMenuItem>
+                  <NavLink to="/resources" icon={<ExternalLink size={18} />} label="Resources" isScrolled={isScrolled} />
+                </NavigationMenuItem>
+              </NavigationMenuList>
+            </NavigationMenu>
           </nav>
 
           {/* User Profile / Login Button */}
@@ -93,28 +178,44 @@ const Navbar = () => {
       {/* Mobile Menu */}
       <div
         className={`md:hidden ${
-          mobileMenuOpen ? "max-h-64" : "max-h-0"
+          mobileMenuOpen ? "max-h-screen" : "max-h-0"
         } bg-white overflow-hidden transition-all duration-300 shadow-sm`}
       >
-        <div className="container mx-auto px-4 py-2">
-          <Link to="/kit" className="block py-2 px-4 text-gray-900 hover:bg-gray-100 rounded-md">
+        <div className="container mx-auto px-4 py-2 space-y-1">
+          {/* Home Preparation Section with Dropdown */}
+          <div className="py-2 px-4 text-gray-900">
             <div className="flex items-center space-x-2">
-              <Box size={18} />
-              <span>72-Hour Kits</span>
+              <Home size={18} />
+              <span className="font-medium">Prepare Your Home</span>
             </div>
-          </Link>
-          <Link to="/food" className="block py-2 px-4 text-gray-900 hover:bg-gray-100 rounded-md">
-            <div className="flex items-center space-x-2">
-              <Utensils size={18} />
-              <span>Food Storage</span>
+            <div className="ml-6 mt-2 space-y-2 border-l-2 border-gray-100 pl-2">
+              <Link to="/kit" className="block py-2 px-2 text-gray-700 hover:bg-gray-100 rounded-md">
+                <div className="flex items-center space-x-2">
+                  <Box size={16} />
+                  <span>72-Hour Kits</span>
+                </div>
+              </Link>
+              <Link to="/food" className="block py-2 px-2 text-gray-700 hover:bg-gray-100 rounded-md">
+                <div className="flex items-center space-x-2">
+                  <Utensils size={16} />
+                  <span>Food Storage</span>
+                </div>
+              </Link>
+              <Link to="/water" className="block py-2 px-2 text-gray-700 hover:bg-gray-100 rounded-md">
+                <div className="flex items-center space-x-2">
+                  <Droplets size={16} />
+                  <span>Water Storage</span>
+                </div>
+              </Link>
+              <Link to="/family-emergency-plan" className="block py-2 px-2 text-gray-700 hover:bg-gray-100 rounded-md">
+                <div className="flex items-center space-x-2">
+                  <BookOpen size={16} />
+                  <span>Family Emergency Plan</span>
+                </div>
+              </Link>
             </div>
-          </Link>
-          <Link to="/water" className="block py-2 px-4 text-gray-900 hover:bg-gray-100 rounded-md">
-            <div className="flex items-center space-x-2">
-              <Droplets size={18} />
-              <span>Water Storage</span>
-            </div>
-          </Link>
+          </div>
+
           <Link to="/report" className="block py-2 px-4 text-gray-900 hover:bg-gray-100 rounded-md">
             <div className="flex items-center space-x-2">
               <FileText size={18} />
