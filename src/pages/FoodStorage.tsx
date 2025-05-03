@@ -87,17 +87,13 @@ const areSupplyItemsEqual = (arr1: SupplyItem[], arr2: SupplyItem[]): boolean =>
 };
 
 const FoodStorage = () => {
-  // Initialize peopleCount from localStorage or default to 1
-  const [peopleCount, setPeopleCount] = useState(() => {
-    const savedPeopleCount = localStorage.getItem('foodPeopleCount');
-    return savedPeopleCount ? parseInt(savedPeopleCount) : 1;
-  });
-
   const { 
     foodItems: contextFoodItems, 
     updateFoodItem, 
     initializeFoodItems,
-    updateFoodItemsRecommendedAmounts
+    updateFoodItemsRecommendedAmounts,
+    peopleCount,
+    setPeopleCount
   } = useSupply();
   const [foodItems, setFoodItems] = useState<SupplyItem[]>([]);
   
@@ -195,10 +191,6 @@ const FoodStorage = () => {
   }, [peopleCount, contextFoodItems, initializeFoodItems, updateFoodItemsRecommendedAmounts]);
 
   const handleQuantityChange = (newCount: number) => {
-    // Save the people count to localStorage
-    localStorage.setItem('foodPeopleCount', newCount.toString());
-    
-    // Update the people count - this will trigger the useEffect above
     setPeopleCount(newCount);
 
     toast({
