@@ -52,6 +52,8 @@ export const SupplyProvider: React.FC<SupplyProviderProps> = ({ children }) => {
   const [isDataLoaded, setIsDataLoaded] = useState(false);
   const { user, isAuthenticated } = useAuth();
   const isSyncingRef = useRef(false);
+  const lastSyncedStateRef = useRef<{ foodItems: SupplyItem[]; kitItems: SupplyItem[] }>({ foodItems: [], kitItems: [] });
+  const syncTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // Add debugging info on mount
   useEffect(() => {
@@ -186,6 +188,7 @@ export const SupplyProvider: React.FC<SupplyProviderProps> = ({ children }) => {
           description: "Your data has been saved to the cloud",
           variant: "default"
         });
+        lastSyncedStateRef.current = { foodItems, kitItems };
       } else {
         console.error('Failed to save data to database');
         toast({
@@ -215,12 +218,21 @@ export const SupplyProvider: React.FC<SupplyProviderProps> = ({ children }) => {
     }
     
     if (isAuthenticated && !isSyncingRef.current) {
-      console.log('Items changed, scheduling sync to server...');
-      const debounceTimer = setTimeout(() => {
-        saveDataToDb();
-      }, 1000); // Debounce to prevent too many API calls
-      
-      return () => clearTimeout(debounceTimer);
+      const hasStateChanged =
+        JSON.stringify(lastSyncedStateRef.current.foodItems) !== JSON.stringify(foodItems) ||
+        JSON.stringify(lastSyncedStateRef.current.kitItems) !== JSON.stringify(kitItems);
+
+      if (hasStateChanged) {
+        console.log('Items changed, scheduling sync to server...');
+        if (syncTimeoutRef.current) {
+          clearTimeout(syncTimeoutRef.current);
+        }
+        syncTimeoutRef.current = setTimeout(() => {
+          saveDataToDb();
+        }, 1000); // Debounce to prevent too many API calls
+      } else {
+        console.log('No changes detected, skipping sync');
+      }
     } else {
       console.log('Not authenticated or already syncing, not saving to server');
     }
