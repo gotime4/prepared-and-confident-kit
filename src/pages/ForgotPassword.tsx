@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
@@ -58,7 +57,7 @@ export default function ForgotPassword() {
             <CardFooter className="flex flex-col space-y-4">
               <Button
                 type="submit"
-                className="w-full"
+                className="w-full bg-gray-700 text-white hover:bg-gray-800 font-semibold"
                 disabled={isSubmitting}
               >
                 {isSubmitting ? (
@@ -73,7 +72,7 @@ export default function ForgotPassword() {
               <div className="text-center text-sm">
                 <Link
                   to="/login"
-                  className="text-primary underline-offset-4 hover:underline"
+                  className="text-primary font-semibold underline-offset-4 hover:underline"
                 >
                   Back to login
                 </Link>

@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
@@ -112,7 +111,7 @@ export default function Signup() {
           <CardFooter className="flex flex-col space-y-4">
             <Button
               type="submit"
-              className="w-full"
+              className="w-full bg-secondary text-white hover:bg-secondary-dark font-semibold"
               disabled={isSubmitting}
             >
               {isSubmitting ? (
@@ -128,7 +127,7 @@ export default function Signup() {
               Already have an account?{" "}
               <Link
                 to="/login"
-                className="text-primary underline-offset-4 hover:underline"
+                className="text-primary font-semibold underline-offset-4 hover:underline"
               >
                 Sign in
               </Link>
