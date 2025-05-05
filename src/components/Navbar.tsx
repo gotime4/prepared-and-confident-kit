@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Box, Utensils, Droplets, Menu, X, ExternalLink, FileText, Home, ChevronDown, BookOpen } from "lucide-react";
@@ -126,6 +125,14 @@ const Navbar = () => {
                           </div>
                         </ListItem>
                       </Link>
+                      <Link to="/seedbank" className="group">
+                        <ListItem title="Seed Bank">
+                          <div className="flex items-center">
+                            <Box size={16} className="mr-2 text-sky-600" />
+                            <span>Long-term preparedness with heirloom seeds</span>
+                          </div>
+                        </ListItem>
+                      </Link>
                       <Link to="/water" className="group">
                         <ListItem title="Water Storage">
                           <div className="flex items-center">
@@ -199,6 +206,12 @@ const Navbar = () => {
                 <div className="flex items-center space-x-2">
                   <Utensils size={16} />
                   <span>Food Storage</span>
+                </div>
+              </Link>
+              <Link to="/seedbank" className="block py-2 px-2 text-gray-700 hover:bg-gray-100 rounded-md">
+                <div className="flex items-center space-x-2">
+                  <Box size={16} />
+                  <span>Seed Bank</span>
                 </div>
               </Link>
               <Link to="/water" className="block py-2 px-2 text-gray-700 hover:bg-gray-100 rounded-md">
