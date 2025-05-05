@@ -111,7 +111,7 @@ export default function Signup() {
           <CardFooter className="flex flex-col space-y-4">
             <Button
               type="submit"
-              className="w-full bg-secondary text-white hover:bg-secondary-dark font-semibold"
+              className="w-full bg-secondary-foreground text-secondary font-semibold hover:bg-secondary/80 focus:bg-secondary/90 focus:text-white"
               disabled={isSubmitting}
             >
               {isSubmitting ? (
@@ -127,7 +127,7 @@ export default function Signup() {
               Already have an account?{" "}
               <Link
                 to="/login"
-                className="text-primary font-semibold underline-offset-4 hover:underline"
+                className="text-secondary-foreground font-semibold underline-offset-4 hover:underline hover:text-secondary"
               >
                 Sign in
               </Link>
