@@ -49,9 +49,7 @@ const App = () => (
               
               {/* Protected Routes */}
               <Route path="/" element={
-                <ProtectedRoute>
                   <Index />
-                </ProtectedRoute>
               } />
               <Route path="/account" element={
                 <ProtectedRoute>
