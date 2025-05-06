@@ -74,6 +74,45 @@ const SeedBank = () => {
               </div>
             </CardContent>
           </Card>
+          <section className="mb-10">
+            <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-4">What Is a Seed Bank?</h2>
+            <p className="text-gray-700 text-lg mb-2">
+              A seed bank is a collection of seeds stored for long-term survival, emergency preparedness, and self-reliance. Whether personal or institutional, seed banks help preserve plant diversity and ensure you can grow food in times of need.
+            </p>
+          </section>
+          <section className="mb-10">
+            <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-4">Why Have One?</h2>
+            <ul className="list-disc pl-6 text-gray-700 space-y-2 text-lg">
+              <li>Ensures you can grow your own food during disruptions</li>
+              <li>Protects against rising food prices and shortages</li>
+              <li>Allows you to preserve non-GMO heirloom varieties</li>
+              <li>Promotes self-reliance and community resilience</li>
+              <li>Supports long-term food security for your family</li>
+            </ul>
+          </section>
+          <section className="mb-10">
+            <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-4">Seed Bank Tips</h2>
+            <ul className="list-disc pl-6 text-gray-700 space-y-2 text-lg">
+              <li>Use <strong>heirloom</strong> or <strong>open-pollinated</strong> seeds for long-term viability and seed-saving</li>
+              <li>Store seeds in a <strong>cool, dark, and dry</strong> environment</li>
+              <li>Use <strong>vacuum-sealed bags</strong>, mylar, or glass jars with silica gel packets</li>
+              <li>Label everything with plant type, date, and origin</li>
+              <li>Keep seeds in a <strong>refrigerator or freezer</strong> for longest shelf life</li>
+              <li>Rotate every <strong>3–5 years</strong> to ensure germination</li>
+              <li>Learn <strong>seed-saving techniques</strong> as part of your family plan</li>
+            </ul>
+          </section>
+          <section className="mb-10">
+            <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-4">Resources</h2>
+            <ul className="list-disc pl-6 text-gray-700 space-y-2 text-lg">
+              <li>
+                <a href="https://www.seedsavers.org/" target="_blank" rel="noopener noreferrer" className="text-sky-700 underline hover:text-sky-900">Seed Savers Exchange</a> – Heirloom seeds and seed-saving resources
+              </li>
+              <li>
+                <a href="https://www.arkinstitute.com/" target="_blank" rel="noopener noreferrer" className="text-sky-700 underline hover:text-sky-900">The Ark Institute</a> – Non-GMO and open-pollinated seed supplier
+              </li>
+            </ul>
+          </section>
         </div>
       </div>
       <Footer />
