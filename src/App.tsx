@@ -19,6 +19,7 @@ import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsOfUse from "./pages/TermsOfUse";
 import Account from "./pages/Account";
 import FamilyEmergencyPlan from "./pages/FamilyEmergencyPlan";
+import SeedBank from "./pages/SeedBank";
 import { SupplyProvider } from "./contexts/SupplyContext";
 import { AuthProvider } from "./contexts/AuthContext";
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -45,6 +46,7 @@ const App = () => (
               <Route path="/water" element={<WaterStorage />} />
               <Route path="/resources" element={<TrustedResources />} />
               <Route path="/family-emergency-plan" element={<FamilyEmergencyPlan />} />
+              <Route path="/seedbank" element={<SeedBank />} />
               <Route path="/" element={<Index />} />
               {/* Protected Routes */}
               <Route path="/account" element={
