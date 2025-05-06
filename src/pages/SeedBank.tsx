@@ -74,17 +74,21 @@ const SeedBank = () => {
               </div>
             </CardContent>
           </Card>
-          <section className="mb-10">
-            <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-4">Resources</h2>
-            <ul className="list-disc pl-6 text-gray-700 space-y-2 text-lg">
-              <li>
-                <a href="https://www.seedsavers.org/" target="_blank" rel="noopener noreferrer" className="text-sky-700 underline hover:text-sky-900">Seed Savers Exchange</a> – Heirloom seeds and seed-saving resources
-              </li>
-              <li>
-                <a href="https://www.arkinstitute.com/" target="_blank" rel="noopener noreferrer" className="text-sky-700 underline hover:text-sky-900">The Ark Institute</a> – Non-GMO and open-pollinated seed supplier
-              </li>
-            </ul>
-          </section>
+          <Card className="mb-8">
+            <CardHeader>
+              <CardTitle>Resources</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ul className="list-disc pl-6 text-gray-700 space-y-2 text-lg">
+                <li>
+                  <a href="https://www.seedsavers.org/" target="_blank" rel="noopener noreferrer" className="text-sky-700 underline hover:text-sky-900">Seed Savers Exchange</a> – Heirloom seeds and seed-saving resources
+                </li>
+                <li>
+                  <a href="https://www.arkinstitute.com/" target="_blank" rel="noopener noreferrer" className="text-sky-700 underline hover:text-sky-900">The Ark Institute</a> – Non-GMO and open-pollinated seed supplier
+                </li>
+              </ul>
+            </CardContent>
+          </Card>
         </div>
       </div>
       <Footer />
