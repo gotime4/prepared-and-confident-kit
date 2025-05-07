@@ -12,6 +12,7 @@ import {
   NavigationMenuTrigger,
 } from "@/components/ui/navigation-menu";
 import { cn } from "@/lib/utils";
+import * as NavigationMenuPrimitive from "@radix-ui/react-navigation-menu";
 
 interface NavLinkProps {
   to: string;
@@ -31,6 +32,31 @@ const NavLink = ({ to, icon, label, isScrolled }: NavLinkProps) => (
     <span>{label}</span>
   </Link>
 );
+
+// Custom NavigationMenu with right-aligned viewport for the Resources dropdown
+const NavigationMenuWithRightViewport = React.forwardRef<
+  React.ElementRef<typeof NavigationMenuPrimitive.Root>,
+  React.ComponentPropsWithoutRef<typeof NavigationMenuPrimitive.Root>
+>(({ className, children, ...props }, ref) => (
+  <NavigationMenuPrimitive.Root
+    ref={ref}
+    className={cn(
+      "relative z-10 flex max-w-max flex-1 items-center justify-center",
+      className
+    )}
+    {...props}
+  >
+    {children}
+    <div className="absolute right-0 top-full flex justify-end">
+      <NavigationMenuPrimitive.Viewport
+        className={cn(
+          "origin-top-right relative mt-1.5 h-[var(--radix-navigation-menu-viewport-height)] w-full overflow-hidden rounded-md border bg-popover text-popover-foreground shadow-lg data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-90 md:w-[var(--radix-navigation-menu-viewport-width)]"
+        )}
+      />
+    </div>
+  </NavigationMenuPrimitive.Root>
+));
+NavigationMenuWithRightViewport.displayName = "NavigationMenuWithRightViewport";
 
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -98,7 +124,7 @@ const Navbar = () => {
 
           {/* Navigation Links - Desktop */}
           <nav className="hidden md:flex items-center space-x-1">
-            {/* Dropdown Menu */}
+            {/* Prepare Your Home Dropdown Menu */}
             <NavigationMenu>
               <NavigationMenuList>
                 <NavigationMenuItem>
@@ -132,6 +158,12 @@ const Navbar = () => {
                 <NavigationMenuItem>
                   <NavLink to="/report" icon={<FileText size={18} />} label="Readiness Report" isScrolled={isScrolled} />
                 </NavigationMenuItem>
+              </NavigationMenuList>
+            </NavigationMenu>
+
+            {/* Resources Dropdown Menu with Right-Aligned Viewport */}
+            <NavigationMenuWithRightViewport>
+              <NavigationMenuList>
                 <NavigationMenuItem>
                   <NavigationMenuTrigger className="bg-transparent hover:bg-gray-100">
                     <div className="flex items-center">
@@ -139,7 +171,7 @@ const Navbar = () => {
                       <span>Resources</span>
                     </div>
                   </NavigationMenuTrigger>
-                  <NavigationMenuContentRight className="min-w-[400px]">
+                  <NavigationMenuContent className="min-w-[400px]">
                     <ul className="grid w-[400px] gap-2 p-4">
                       <Link to="/seedbank" className="group">
                         <ListItem title="Seed Bank">
@@ -174,10 +206,10 @@ const Navbar = () => {
                         </ListItem>
                       </Link>
                     </ul>
-                  </NavigationMenuContentRight>
+                  </NavigationMenuContent>
                 </NavigationMenuItem>
               </NavigationMenuList>
-            </NavigationMenu>
+            </NavigationMenuWithRightViewport>
           </nav>
 
           {/* User Profile / Login Button */}
