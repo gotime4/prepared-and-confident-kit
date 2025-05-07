@@ -125,6 +125,21 @@ const Navbar = () => {
                           </div>
                         </ListItem>
                       </Link>
+                    </ul>
+                  </NavigationMenuContent>
+                </NavigationMenuItem>
+                <NavigationMenuItem>
+                  <NavLink to="/report" icon={<FileText size={18} />} label="Readiness Report" isScrolled={isScrolled} />
+                </NavigationMenuItem>
+                <NavigationMenuItem>
+                  <NavigationMenuTrigger className="bg-transparent hover:bg-gray-100">
+                    <div className="flex items-center">
+                      <ExternalLink size={18} className="mr-2" />
+                      <span>Resources</span>
+                    </div>
+                  </NavigationMenuTrigger>
+                  <NavigationMenuContent>
+                    <ul className="grid w-[400px] gap-2 p-4">
                       <Link to="/seedbank" className="group">
                         <ListItem title="Seed Bank">
                           <div className="flex items-center">
@@ -149,14 +164,16 @@ const Navbar = () => {
                           </div>
                         </ListItem>
                       </Link>
+                      <Link to="/resources" className="group">
+                        <ListItem title="Trusted Preparedness Resources">
+                          <div className="flex items-center">
+                            <ExternalLink size={16} className="mr-2 text-sky-600" />
+                            <span>Carefully selected links for your family's emergency planning</span>
+                          </div>
+                        </ListItem>
+                      </Link>
                     </ul>
                   </NavigationMenuContent>
-                </NavigationMenuItem>
-                <NavigationMenuItem>
-                  <NavLink to="/report" icon={<FileText size={18} />} label="Readiness Report" isScrolled={isScrolled} />
-                </NavigationMenuItem>
-                <NavigationMenuItem>
-                  <NavLink to="/resources" icon={<ExternalLink size={18} />} label="Resources" isScrolled={isScrolled} />
                 </NavigationMenuItem>
               </NavigationMenuList>
             </NavigationMenu>
@@ -208,6 +225,23 @@ const Navbar = () => {
                   <span>Food Storage</span>
                 </div>
               </Link>
+            </div>
+          </div>
+
+          <Link to="/report" className="block py-2 px-4 text-gray-900 hover:bg-gray-100 rounded-md">
+            <div className="flex items-center space-x-2">
+              <FileText size={18} />
+              <span>Readiness Report</span>
+            </div>
+          </Link>
+
+          {/* Resources Section with Dropdown */}
+          <div className="py-2 px-4 text-gray-900">
+            <div className="flex items-center space-x-2">
+              <ExternalLink size={18} />
+              <span className="font-medium">Resources</span>
+            </div>
+            <div className="ml-6 mt-2 space-y-2 border-l-2 border-gray-100 pl-2">
               <Link to="/seedbank" className="block py-2 px-2 text-gray-700 hover:bg-gray-100 rounded-md">
                 <div className="flex items-center space-x-2">
                   <Box size={16} />
@@ -226,21 +260,14 @@ const Navbar = () => {
                   <span>Family Emergency Plan</span>
                 </div>
               </Link>
+              <Link to="/resources" className="block py-2 px-2 text-gray-700 hover:bg-gray-100 rounded-md">
+                <div className="flex items-center space-x-2">
+                  <ExternalLink size={16} />
+                  <span>Trusted Preparedness Resources</span>
+                </div>
+              </Link>
             </div>
           </div>
-
-          <Link to="/report" className="block py-2 px-4 text-gray-900 hover:bg-gray-100 rounded-md">
-            <div className="flex items-center space-x-2">
-              <FileText size={18} />
-              <span>Readiness Report</span>
-            </div>
-          </Link>
-          <Link to="/resources" className="block py-2 px-4 text-gray-900 hover:bg-gray-100 rounded-md">
-            <div className="flex items-center space-x-2">
-              <ExternalLink size={18} />
-              <span>Resources</span>
-            </div>
-          </Link>
         </div>
       </div>
     </div>
