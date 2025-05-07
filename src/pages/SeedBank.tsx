@@ -9,7 +9,7 @@ const SeedBank = () => {
       <main className="flex-1 flex flex-col items-center">
         <div className="w-full max-w-3xl mx-auto">
           {/* Hero Image */}
-          <div className="rounded-2xl overflow-hidden mt-8 mb-8 shadow-md">
+          <div className="rounded-2xl overflow-hidden mt-20 mb-8 shadow-md">
             <img
               src="https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=800&q=80"
               alt="Assorted seeds in a bowl"
