@@ -1,4 +1,3 @@
-
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
 @tailwind base;
@@ -115,4 +114,11 @@
 
 .section-gradient {
   background: linear-gradient(to right, #f8f9fa 0%, #e0e7ff 100%);
+}
+
+/* Fix Resources dropdown alignment in navbar */
+.radix-navigation-menu-viewport {
+  left: auto !important;
+  right: 0 !important;
+  justify-content: flex-end !important;
 }
