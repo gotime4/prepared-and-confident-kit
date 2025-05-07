@@ -138,7 +138,7 @@ const Navbar = () => {
                       <span>Resources</span>
                     </div>
                   </NavigationMenuTrigger>
-                  <NavigationMenuContent className="md:right-auto md:right-0 md:min-w-[400px]">
+                  <NavigationMenuContent className="absolute top-full right-0 md:left-auto md:min-w-[400px]">
                     <ul className="grid w-[400px] gap-2 p-4">
                       <Link to="/seedbank" className="group">
                         <ListItem title="Seed Bank">
