@@ -5,6 +5,7 @@ import { UserProfile } from "./UserProfile";
 import {
   NavigationMenu,
   NavigationMenuContent,
+  NavigationMenuContentRight,
   NavigationMenuItem,
   NavigationMenuLink,
   NavigationMenuList,
@@ -138,7 +139,7 @@ const Navbar = () => {
                       <span>Resources</span>
                     </div>
                   </NavigationMenuTrigger>
-                  <NavigationMenuContent className="md:left-auto md:right-0 md:translate-x-0 md:min-w-[400px]">
+                  <NavigationMenuContentRight className="md:left-auto md:right-0 md:translate-x-0 md:min-w-[400px]">
                     <ul className="grid w-[400px] gap-2 p-4">
                       <Link to="/seedbank" className="group">
                         <ListItem title="Seed Bank">
@@ -173,7 +174,7 @@ const Navbar = () => {
                         </ListItem>
                       </Link>
                     </ul>
-                  </NavigationMenuContent>
+                  </NavigationMenuContentRight>
                 </NavigationMenuItem>
               </NavigationMenuList>
             </NavigationMenu>
