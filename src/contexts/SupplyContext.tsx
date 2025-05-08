@@ -97,6 +97,58 @@ const areSupplyItemsEqual = (arr1: SupplyItem[], arr2: SupplyItem[]): boolean =>
   return true;
 };
 
+// Survival priority ranking for supply items
+const survivalPriorityRanks: Record<string, number> = {
+  "Water (bottle, filter, tabs)": 1,
+  "Prescription medications": 2,
+  "Energy/Protein bars": 3,
+  "Emergency blanket": 4,
+  "Flashlight/headlamp": 5,
+  "Basic First Aid Kit": 6,
+  "Ready-to-eat canned foods": 7,
+  "Emergency whistle": 8,
+  "OTC medications": 9,
+  "Rain jacket / poncho": 10,
+  "Change of clothes": 11,
+  "Sturdy walking shoes": 12,
+  "Wheat": 13,
+  "White Rice": 14,
+  "Rolled Oats": 15,
+  "Pasta": 16,
+  "Vegetable Oil": 17,
+  "Black Beans": 18,
+  "Pinto Beans": 19,
+  "Lentils": 20,
+  "Tuna (canned)": 21,
+  "Chicken (canned)": 22,
+  "Peanut Butter": 23,
+  "Salmon (canned)": 24,
+  "Raisins": 25,
+  "Apricots": 26,
+  "Applesauce (canned)": 27,
+  "Dust mask": 28,
+  "Duct tape": 29,
+  "Multi-tool / Pocket knife": 30,
+  "Banana Chips": 31,
+  "Peaches (canned)": 32,
+  "Pears (canned)": 33,
+  "Pineapple (canned)": 34,
+  "Beef (canned)": 35,
+  "Carrots (canned)": 36,
+  "Corn (canned)": 37,
+  "Tomatoes (canned)": 38,
+  "Peas (canned)": 39,
+  "Mixed Vegetables (canned)": 40,
+  "Brown Sugar": 41,
+  "White Sugar": 42,
+  "Honey": 43,
+  "Shortening": 44,
+  "Split Peas": 45,
+  "Local map": 46,
+  "Notepad and pencil": 47,
+  "Hand sanitizer": 48
+};
+
 export const SupplyProvider: React.FC<SupplyProviderProps> = ({ children }) => {
   // Initialize with empty arrays
   const [foodItems, setFoodItems] = useState<SupplyItem[]>([]);
@@ -389,30 +441,35 @@ export const SupplyProvider: React.FC<SupplyProviderProps> = ({ children }) => {
     return Math.floor((totalCurrent / totalRecommended) * 100);
   };
 
-  // Get top priority items (items with the lowest completion percentage)
+  // Get top priority items (using survival priority and progress)
   const getPriorities = (): SupplyItem[] => {
     const allItems = [...foodItems, ...kitItems];
-    
-    // Calculate progress for each item
-    const itemsWithProgress = allItems.map(item => ({
-      ...item,
-      progress: item.recommendedAmount > 0 ? (item.currentAmount / item.recommendedAmount) * 100 : 100
+
+    const itemsWithScores = allItems
+      .map(item => {
+        const rank = survivalPriorityRanks[item.name];
+        if (!rank || item.recommendedAmount === 0) return null;
+
+        const progress = (item.currentAmount / item.recommendedAmount) * 100;
+
+        // Lower score = higher priority
+        const score = rank * 0.7 + progress * 0.3;
+
+        return { ...item, progress, rank, score };
+      })
+      .filter(item => item && item.progress < 100)
+      .sort((a, b) => a!.score - b!.score)
+      .slice(0, 5);
+
+    return itemsWithScores.map(item => ({
+      id: item!.id,
+      name: item!.name,
+      recommendedAmount: item!.recommendedAmount,
+      currentAmount: item!.currentAmount,
+      unit: item!.unit,
+      category: item!.category,
+      type: item!.type
     }));
-    
-    // Sort by progress (lowest first) and take top 5
-    return itemsWithProgress
-      .filter(item => item.progress < 100) // Only items not at 100%
-      .sort((a, b) => a.progress - b.progress)
-      .slice(0, 5)
-      .map(item => ({
-        id: item.id,
-        name: item.name,
-        recommendedAmount: item.recommendedAmount,
-        currentAmount: item.currentAmount,
-        unit: item.unit,
-        category: item.category,
-        type: item.type
-      }));
   };
 
   // Get counts of completed, in-progress, and not-started items
