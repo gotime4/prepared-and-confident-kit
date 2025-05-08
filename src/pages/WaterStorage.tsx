@@ -2,7 +2,6 @@ import { useState } from "react";
 import { Droplets } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import WaterStorageHeader from "@/components/water/WaterStorageHeader";
 import WaterStorageSidebar from "@/components/water/WaterStorageSidebar";
 import WaterStorageOptions from "@/components/water/WaterStorageOptions";
 import WaterPurificationMethods from "@/components/water/WaterPurificationMethods";
@@ -45,11 +44,6 @@ const WaterStorage = () => {
           </div>
         </div>
       </div>
-
-      <WaterStorageHeader 
-        title="Water Storage Guide" 
-        description="Clean water is your most essential resource in an emergency. Learn how to store and purify water for your family."
-      />
 
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
