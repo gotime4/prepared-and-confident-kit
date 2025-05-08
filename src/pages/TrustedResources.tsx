@@ -1,6 +1,5 @@
-
 import React from "react";
-import { ExternalLink, Package, Utensils, Users } from "lucide-react";
+import { ExternalLink, Package, Utensils, Users, BookOpen } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { HoverCard, HoverCardTrigger, HoverCardContent } from "@/components/ui/hover-card";
@@ -78,6 +77,35 @@ const TrustedResources = () => {
       <Navbar />
       
       <main className="flex-grow pt-20">
+        {/* Hero Image */}
+        <div className="w-full max-w-3xl mx-auto">
+          <div className="rounded-2xl overflow-hidden mt-8 mb-8 shadow-md">
+            <img
+              src="https://images.unsplash.com/photo-1515378791036-0648a3ef77b2?auto=format&fit=crop&w=800&q=80"
+              alt="Stack of books and digital tablet for learning and resources"
+              className="w-full h-64 object-cover object-center"
+              style={{ background: '#eaf6fb' }}
+            />
+          </div>
+          {/* Title & Subtitle */}
+          <h1 className="text-4xl md:text-5xl font-extrabold text-gray-900 text-center mb-4">Trusted Preparedness Resources</h1>
+          <p className="text-lg text-gray-700 text-center mb-10 max-w-2xl mx-auto">
+            Carefully selected expert guides to help you build confidence in your family's emergency preparedness.
+          </p>
+          {/* Info Box */}
+          <div className="bg-sky-50 rounded-xl p-6 flex items-start gap-4 mb-8 shadow-sm border border-sky-100">
+            <span className="bg-sky-100 rounded-full p-3 flex items-center justify-center">
+              <BookOpen className="w-7 h-7 text-sky-500" />
+            </span>
+            <div>
+              <h2 className="font-bold text-lg mb-1 text-gray-900">Why Use Trusted Resources?</h2>
+              <p className="text-gray-800 text-base">
+                Relying on expert-vetted guides ensures your family is prepared with accurate, up-to-date information for any emergency.
+              </p>
+            </div>
+          </div>
+        </div>
+        
         {/* Header Section */}
         <section className="bg-gray-50 py-16 md:py-20">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8">
@@ -130,6 +158,13 @@ const TrustedResources = () => {
                 iconColor="text-emerald-600"
               />
               
+            </div>
+            {/* Tip Box */}
+            <div className="bg-sky-50 rounded-xl p-4 flex items-center gap-3 mt-10 border border-sky-100 max-w-3xl mx-auto">
+              <span className="bg-sky-100 rounded-full p-2 flex items-center justify-center">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-6 h-6 text-sky-500"><path strokeLinecap="round" strokeLinejoin="round" d="M13 16h-1v-4h-1m1-4h.01M12 20a8 8 0 100-16 8 8 0 000 16z" /></svg>
+              </span>
+              <span className="text-sky-900 text-base">Bookmark this page and revisit it regularly for new and updated preparedness resources.</span>
             </div>
           </div>
         </section>
