@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from 'react';
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -30,6 +29,11 @@ const PrepReport = () => {
   
   // Combine all items for the detailed inventory in the PDF
   const allItems = [...foodItems, ...kitItems];
+  
+  useEffect(() => {
+    // Log priority items to the console for debugging/visibility
+    console.log("Priority Items:", priorityItems);
+  }, [priorityItems]);
   
   const handleDownloadReport = () => {
     setIsGenerating(true);
