@@ -21,8 +21,8 @@ const WaterStorage = () => {
         {/* Hero Image */}
         <div className="rounded-2xl overflow-hidden mt-20 mb-8 shadow-md">
           <img
-            src="https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=800&q=80"
-            alt="Water storage containers"
+            src="https://images.unsplash.com/photo-1464983953574-0892a716854b?auto=format&fit=crop&w=800&q=80"
+            alt="Large blue water storage barrels in a garage or storage area"
             className="w-full h-64 object-cover object-center"
             style={{ background: '#eaf6fb' }}
           />
