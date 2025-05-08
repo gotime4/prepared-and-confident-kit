@@ -70,6 +70,9 @@ const SeedBank = () => {
           <div className="bg-white rounded-xl p-6 border border-gray-100 shadow-sm mb-16">
             <ul className="list-disc pl-6 text-gray-700 space-y-2 text-base">
               <li>
+                <a href="/RelianceHQ_SeedBank_TwoPage_Guide_Happier.pdf" download className="text-sky-700 underline hover:text-sky-900">Seed Bank Two-Page Guide (PDF)</a> – Downloadable PDF guide for seed banking
+              </li>
+              <li>
                 <a href="https://www.seedsavers.org/" target="_blank" rel="noopener noreferrer" className="text-sky-700 underline hover:text-sky-900">Seed Savers Exchange</a> – Heirloom seeds and seed-saving resources
               </li>
               <li>
