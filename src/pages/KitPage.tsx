@@ -14,6 +14,7 @@ import { Plus } from "lucide-react";
 import { useSupply, SupplyItem } from "@/contexts/SupplyContext";
 import { Progress } from "@/components/ui/progress";
 import { Card, CardContent } from "@/components/ui/card";
+import InfoTooltip from "@/components/ui/InfoTooltip";
 
 interface KitCategory {
   id: string;
@@ -292,7 +293,10 @@ const KitPage = () => {
                             <div key={item.id} className="border border-gray-200 rounded-md p-3 bg-white">
                               <div className="flex justify-between items-start">
                                 <div>
-                                  <h4 className="font-medium text-gray-900">{item.name}</h4>
+                                  <h4 className="font-medium text-gray-900 flex items-center">
+                                    {item.name}
+                                    <InfoTooltip label={`More info about ${item.name}`}/>
+                                  </h4>
                                   {item.description && (
                                     <p className="text-sm text-gray-500 mt-1">{item.description}</p>
                                   )}
