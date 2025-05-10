@@ -307,10 +307,7 @@ const FoodStorage = () => {
                   
                   <TabsContent value="staples">
                     <div className="space-y-2">
-                      <h3 className="font-medium text-gray-900 flex items-center">
-                        Grains
-                        <InfoTooltip label="More info about Grains" />
-                      </h3>
+                      <h3 className="font-medium text-gray-900">Grains</h3>
                       {staples.filter(item => item.category === "Grains").map(item => (
                         <SupplyItemComponent 
                           key={item.id}
@@ -324,10 +321,7 @@ const FoodStorage = () => {
                         />
                       ))}
 
-                      <h3 className="font-medium text-gray-900 flex items-center mt-6">
-                        Legumes
-                        <InfoTooltip label="More info about Legumes" />
-                      </h3>
+                      <h3 className="font-medium text-gray-900 mt-6">Legumes</h3>
                       {staples.filter(item => item.category === "Legumes").map(item => (
                         <SupplyItemComponent 
                           key={item.id}
@@ -341,10 +335,7 @@ const FoodStorage = () => {
                         />
                       ))}
 
-                      <h3 className="font-medium text-gray-900 flex items-center mt-6">
-                        Fats & Oils
-                        <InfoTooltip label="More info about Fats & Oils" />
-                      </h3>
+                      <h3 className="font-medium text-gray-900 mt-6">Fats & Oils</h3>
                       {staples.filter(item => item.category === "Fats & Oils").map(item => (
                         <SupplyItemComponent 
                           key={item.id}
@@ -358,10 +349,7 @@ const FoodStorage = () => {
                         />
                       ))}
 
-                      <h3 className="font-medium text-gray-900 flex items-center mt-6">
-                        Sugars
-                        <InfoTooltip label="More info about Sugars" />
-                      </h3>
+                      <h3 className="font-medium text-gray-900 mt-6">Sugars</h3>
                       {staples.filter(item => item.category === "Sugars").map(item => (
                         <SupplyItemComponent 
                           key={item.id}
@@ -379,10 +367,7 @@ const FoodStorage = () => {
                   
                   <TabsContent value="canned">
                     <div className="space-y-2">
-                      <h3 className="font-medium text-gray-900 flex items-center">
-                        Canned Proteins
-                        <InfoTooltip label="More info about Canned Proteins" />
-                      </h3>
+                      <h3 className="font-medium text-gray-900">Canned Proteins</h3>
                       {canned.filter(item => item.category === "Canned Proteins").map(item => (
                         <SupplyItemComponent 
                           key={item.id}
@@ -396,10 +381,7 @@ const FoodStorage = () => {
                         />
                       ))}
 
-                      <h3 className="font-medium text-gray-900 flex items-center mt-6">
-                        Canned Fruits
-                        <InfoTooltip label="More info about Canned Fruits" />
-                      </h3>
+                      <h3 className="font-medium text-gray-900 mt-6">Canned Fruits</h3>
                       {canned.filter(item => item.category === "Canned Fruits").map(item => (
                         <SupplyItemComponent 
                           key={item.id}
@@ -413,10 +395,7 @@ const FoodStorage = () => {
                         />
                       ))}
 
-                      <h3 className="font-medium text-gray-900 flex items-center mt-6">
-                        Canned Vegetables
-                        <InfoTooltip label="More info about Canned Vegetables" />
-                      </h3>
+                      <h3 className="font-medium text-gray-900 mt-6">Canned Vegetables</h3>
                       {canned.filter(item => item.category === "Canned Vegetables").map(item => (
                         <SupplyItemComponent 
                           key={item.id}
@@ -434,10 +413,7 @@ const FoodStorage = () => {
                   
                   <TabsContent value="dried">
                     <div className="space-y-2">
-                      <h3 className="font-medium text-gray-900 flex items-center">
-                        Dried Fruits
-                        <InfoTooltip label="More info about Dried Fruits" />
-                      </h3>
+                      <h3 className="font-medium text-gray-900">Dried Fruits</h3>
                       {dried.filter(item => item.category === "Dried Fruits").map(item => (
                         <SupplyItemComponent 
                           key={item.id}
