@@ -1,6 +1,7 @@
 import React from 'react';
 import { Progress } from "@/components/ui/progress";
 import { Input } from "@/components/ui/input";
+import InfoTooltip from "@/components/ui/InfoTooltip";
 
 export interface SupplyItemProps {
   id: string;
@@ -42,7 +43,10 @@ const SupplyItem: React.FC<SupplyItemProps> = ({
   return (
     <div className="flex flex-col md:flex-row md:items-center justify-between p-4 border border-gray-100 rounded-lg bg-white shadow-sm hover:shadow-md transition-shadow duration-200 mb-2">
       <div className="flex-1">
-        <h3 className="font-medium text-gray-900">{name}</h3>
+        <h3 className="font-medium text-gray-900 flex items-center">
+          {name}
+          <InfoTooltip label={`More info about ${name}`} />
+        </h3>
       </div>
       
       <div className="flex flex-col md:flex-row md:items-center gap-4 mt-3 md:mt-0">
