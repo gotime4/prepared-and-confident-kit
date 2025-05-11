@@ -341,11 +341,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       })
       .catch(err => console.error("Logout request error:", err));
     }
-    
+    // Clear all user-related data from localStorage
     localStorage.removeItem('user_info');
     localStorage.removeItem('auth_token');
+    localStorage.removeItem('kitItems');
+    localStorage.removeItem('foodItems');
+    localStorage.removeItem('foodPeopleCount');
+    localStorage.removeItem('kitPeopleCount');
     setUser(null);
-    
     toast({
       title: "Logged Out",
       description: "You've been logged out successfully",
