@@ -409,11 +409,15 @@ export const SupplyProvider: React.FC<SupplyProviderProps> = ({ children }) => {
   }, []);
 
   const initializeFoodItems = useCallback((items: SupplyItem[]) => {
-    setFoodItems(prev => (prev.length === 0 && items.length > 0 ? items : prev));
+    // Always reset currentAmount to 0 for all items on initialization
+    const zeroedItems = items.map(item => ({ ...item, currentAmount: 0 }));
+    setFoodItems(prev => (prev.length === 0 && zeroedItems.length > 0 ? zeroedItems : prev));
   }, []);
 
   const initializeKitItems = useCallback((items: SupplyItem[]) => {
-    setKitItems(prev => (prev.length === 0 && items.length > 0 ? items : prev));
+    // Always reset currentAmount to 0 for all items on initialization
+    const zeroedItems = items.map(item => ({ ...item, currentAmount: 0 }));
+    setKitItems(prev => (prev.length === 0 && zeroedItems.length > 0 ? zeroedItems : prev));
   }, []);
 
   const updateFoodItemsRecommendedAmounts = useCallback((items: SupplyItem[]) => {
