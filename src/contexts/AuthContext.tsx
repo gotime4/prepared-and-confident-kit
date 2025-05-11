@@ -506,7 +506,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return false;
       }
       
-      const response = await fetch(`${API_URL}/delete-account`, {
+      const response = await fetch(`${API_URL}/api/delete-account`, {
         method: 'DELETE',
         credentials: 'include',
         mode: 'cors',
