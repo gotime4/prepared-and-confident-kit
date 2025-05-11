@@ -11,6 +11,7 @@ export interface SupplyItemProps {
   category: string;
   onUpdateCurrentAmount: (id: string, amount: number) => void;
   currentAmount?: number;
+  infoTooltip?: string;
 }
 
 const SupplyItem: React.FC<SupplyItemProps> = ({
@@ -20,7 +21,8 @@ const SupplyItem: React.FC<SupplyItemProps> = ({
   unit,
   category,
   onUpdateCurrentAmount,
-  currentAmount = 0
+  currentAmount = 0,
+  infoTooltip
 }) => {
   // Calculate progress based directly on props (no local state)
   const progress = Math.min(Math.floor((currentAmount / recommendedAmount) * 100), 100);
@@ -45,7 +47,9 @@ const SupplyItem: React.FC<SupplyItemProps> = ({
       <div className="flex-1">
         <h3 className="font-medium text-gray-900 flex items-center">
           {name}
-          <InfoTooltip label={`More info about ${name}`} />
+          <InfoTooltip label={`More info about ${name}`}>
+            {infoTooltip}
+          </InfoTooltip>
         </h3>
       </div>
       

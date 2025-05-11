@@ -66,6 +66,50 @@ const BASE_AMOUNTS = {
   "banana-chips": 2
 };
 
+// Add infoTooltip text for each food item
+const FOOD_INFO_TOOLTIPS: Record<string, string> = {
+  // Grains
+  "wheat": "Wheat is a staple for making bread and provides essential calories and nutrients. Store in airtight, food-grade containers in a cool, dry place.",
+  "rice": "White rice is shelf-stable and easy to cook, providing energy and versatility. Store in sealed containers to keep out pests and moisture.",
+  "oats": "Oats are nutritious, filling, and can be used for breakfast or baking. Store in airtight containers to prevent spoilage.",
+  "pasta": "Pasta is easy to prepare and has a long shelf life. Keep in original packaging or airtight containers in a dry place.",
+  // Legumes
+  "black-beans": "Black beans are high in protein and fiber, making them a valuable emergency food. Store dry beans in sealed containers away from moisture.",
+  "pinto-beans": "Pinto beans are versatile and nutritious. Store in a cool, dry place in airtight containers.",
+  "lentils": "Lentils cook quickly and are rich in protein. Store in airtight containers to extend shelf life.",
+  "split-peas": "Split peas are a good source of protein and cook faster than whole beans. Store in sealed containers in a dry place.",
+  // Fats & Oils
+  "vegetable-oil": "Vegetable oil is essential for cooking and calories. Store in a cool, dark place and rotate regularly as oils can go rancid.",
+  "shortening": "Shortening is shelf-stable and useful for baking. Store unopened in a cool, dry place.",
+  "peanut-butter": "Peanut butter provides protein and fat, and is ready to eat. Store unopened jars in a cool, dry place.",
+  // Sugars
+  "white-sugar": "Sugar is important for energy and food preservation. Store in airtight containers to prevent clumping.",
+  "brown-sugar": "Brown sugar is used for baking and flavor. Store in airtight containers to keep it soft.",
+  "honey": "Honey is a natural sweetener with an indefinite shelf life. Store in a tightly sealed container at room temperature.",
+  // Canned Proteins
+  "tuna": "Canned tuna is a ready-to-eat protein source. Store in a cool, dry place and rotate by expiration date.",
+  "chicken": "Canned chicken is shelf-stable and versatile. Store in a cool, dry place.",
+  "salmon": "Canned salmon provides protein and healthy fats. Store in a cool, dry place.",
+  "beef": "Canned beef is a hearty protein source. Store in a cool, dry place and use by the expiration date.",
+  // Canned Fruits
+  "peaches": "Canned peaches provide vitamins and variety. Store in a cool, dry place and rotate stock.",
+  "pears": "Canned pears are nutritious and have a long shelf life. Store in a cool, dry place.",
+  "pineapple": "Canned pineapple adds vitamin C and flavor. Store in a cool, dry place.",
+  "applesauce": "Canned applesauce is easy to digest and good for all ages. Store in a cool, dry place.",
+  // Canned Vegetables
+  "green-beans": "Canned green beans are a source of fiber and vitamins. Store in a cool, dry place.",
+  "corn": "Canned corn is sweet, filling, and shelf-stable. Store in a cool, dry place.",
+  "carrots": "Canned carrots provide vitamins and are ready to eat. Store in a cool, dry place.",
+  "tomatoes": "Canned tomatoes are versatile for cooking. Store in a cool, dry place.",
+  "peas": "Canned peas are a good source of protein and fiber. Store in a cool, dry place.",
+  "mixed-vegetables": "Mixed vegetables add variety and nutrition. Store in a cool, dry place.",
+  // Dried Fruits
+  "raisins": "Raisins are a sweet, energy-dense snack. Store in airtight containers to prevent hardening.",
+  "apricots": "Dried apricots provide vitamins and fiber. Store in airtight containers in a cool, dry place.",
+  "apple-slices": "Dried apple slices are a lightweight, nutritious snack. Store in airtight containers.",
+  "banana-chips": "Banana chips are a sweet, shelf-stable snack. Store in airtight containers to keep them crisp."
+};
+
 // Helper for comparing arrays of SupplyItems
 const areSupplyItemsEqual = (arr1: SupplyItem[], arr2: SupplyItem[]): boolean => {
   if (arr1.length !== arr2.length) return false;
@@ -318,6 +362,7 @@ const FoodStorage = () => {
                           category={item.category}
                           onUpdateCurrentAmount={handleUpdateCurrentAmount}
                           currentAmount={item.currentAmount}
+                          infoTooltip={FOOD_INFO_TOOLTIPS[item.id]}
                         />
                       ))}
 
@@ -332,6 +377,7 @@ const FoodStorage = () => {
                           category={item.category}
                           onUpdateCurrentAmount={handleUpdateCurrentAmount}
                           currentAmount={item.currentAmount}
+                          infoTooltip={FOOD_INFO_TOOLTIPS[item.id]}
                         />
                       ))}
 
@@ -346,6 +392,7 @@ const FoodStorage = () => {
                           category={item.category}
                           onUpdateCurrentAmount={handleUpdateCurrentAmount}
                           currentAmount={item.currentAmount}
+                          infoTooltip={FOOD_INFO_TOOLTIPS[item.id]}
                         />
                       ))}
 
@@ -360,6 +407,7 @@ const FoodStorage = () => {
                           category={item.category}
                           onUpdateCurrentAmount={handleUpdateCurrentAmount}
                           currentAmount={item.currentAmount}
+                          infoTooltip={FOOD_INFO_TOOLTIPS[item.id]}
                         />
                       ))}
                     </div>
@@ -378,6 +426,7 @@ const FoodStorage = () => {
                           category={item.category}
                           onUpdateCurrentAmount={handleUpdateCurrentAmount}
                           currentAmount={item.currentAmount}
+                          infoTooltip={FOOD_INFO_TOOLTIPS[item.id]}
                         />
                       ))}
 
@@ -392,6 +441,7 @@ const FoodStorage = () => {
                           category={item.category}
                           onUpdateCurrentAmount={handleUpdateCurrentAmount}
                           currentAmount={item.currentAmount}
+                          infoTooltip={FOOD_INFO_TOOLTIPS[item.id]}
                         />
                       ))}
 
@@ -406,6 +456,7 @@ const FoodStorage = () => {
                           category={item.category}
                           onUpdateCurrentAmount={handleUpdateCurrentAmount}
                           currentAmount={item.currentAmount}
+                          infoTooltip={FOOD_INFO_TOOLTIPS[item.id]}
                         />
                       ))}
                     </div>
@@ -424,6 +475,7 @@ const FoodStorage = () => {
                           category={item.category}
                           onUpdateCurrentAmount={handleUpdateCurrentAmount}
                           currentAmount={item.currentAmount}
+                          infoTooltip={FOOD_INFO_TOOLTIPS[item.id]}
                         />
                       ))}
                     </div>
