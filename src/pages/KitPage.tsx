@@ -28,6 +28,7 @@ interface KitCategory {
     personMultiplier?: number;
     description?: string;
     isCustom?: boolean;
+    infoTooltip?: string;
   }>;
 }
 
@@ -66,9 +67,9 @@ const KitPage = () => {
       title: "Water",
       description: "Crucial for hydration, cooking, and hygiene. The human body can only survive a few days without water.",
       items: [
-        { id: "water-bottle", name: "Water bottle (1 liter)", quantity: 3, personMultiplier: 3, description: "One liter per person per day, minimum" },
-        { id: "water-filter", name: "Portable water filter", quantity: 1, description: "To purify water from natural sources if needed" },
-        { id: "water-purification", name: "Water purification tablets", quantity: 1, description: "Backup method to make water safe for drinking" },
+        { id: "water-bottle", name: "Water bottle (1 liter)", quantity: 3, personMultiplier: 3, description: "One liter per person per day, minimum", infoTooltip: "Water is essential for survival. In an emergency, clean drinking water may not be available. Bottled water ensures hydration and can be used for basic hygiene. Store in a cool, dark place and rotate every 6-12 months." },
+        { id: "water-filter", name: "Portable water filter", quantity: 1, description: "To purify water from natural sources if needed", infoTooltip: "A portable water filter allows you to safely drink from natural sources if bottled water runs out. It removes bacteria and protozoa. Store in your kit and check the filter's lifespan periodically." },
+        { id: "water-purification", name: "Water purification tablets", quantity: 1, description: "Backup method to make water safe for drinking", infoTooltip: "Purification tablets are a lightweight backup for making water safe to drink. They kill most pathogens. Store in original packaging and check expiration dates." },
       ]
     },
     {
@@ -76,10 +77,10 @@ const KitPage = () => {
       title: "Food",
       description: "High-calorie, non-perishable items that require minimal preparation and provide necessary energy.",
       items: [
-        { id: "energy-bars", name: "Energy/Protein bars", quantity: 6, personMultiplier: 6, description: "Compact source of energy and nutrients" },
-        { id: "dried-fruits", name: "Dried fruits and nuts", quantity: 1, personMultiplier: 1, description: "Package per person" },
-        { id: "canned-food", name: "Ready-to-eat canned foods", quantity: 3, personMultiplier: 3, description: "With pop-tops for easy opening" },
-        { id: "utensils", name: "Eating utensils", quantity: 1, personMultiplier: 1, description: "Lightweight, reusable set" },
+        { id: "energy-bars", name: "Energy/Protein bars", quantity: 6, personMultiplier: 6, description: "Compact source of energy and nutrients", infoTooltip: "Energy bars are calorie-dense, require no preparation, and have a long shelf life. They provide quick energy in stressful situations. Store in a cool, dry place and rotate stock as needed." },
+        { id: "dried-fruits", name: "Dried fruits and nuts", quantity: 1, personMultiplier: 1, description: "Package per person", infoTooltip: "Dried fruits and nuts are nutritious, lightweight, and non-perishable. They provide essential fats and vitamins. Store in airtight containers to prevent spoilage." },
+        { id: "canned-food", name: "Ready-to-eat canned foods", quantity: 3, personMultiplier: 3, description: "With pop-tops for easy opening", infoTooltip: "Canned foods are filling, shelf-stable, and ready to eat. Pop-tops are useful if you don't have a can opener. Store in a cool, dry place and check expiration dates." },
+        { id: "utensils", name: "Eating utensils", quantity: 1, personMultiplier: 1, description: "Lightweight, reusable set", infoTooltip: "Reusable utensils allow you to eat safely and hygienically. In an emergency, disposable options may run out. Store a lightweight set in your kit and keep it clean." },
       ]
     },
     {
@@ -87,10 +88,10 @@ const KitPage = () => {
       title: "First Aid & Medication",
       description: "Essential for treating injuries and managing health conditions during an emergency.",
       items: [
-        { id: "first-aid-kit", name: "Basic First Aid Kit", quantity: 1, description: "Bandages, antiseptic wipes, pain relievers, etc." },
-        { id: "prescription-meds", name: "Prescription medications", quantity: 1, personMultiplier: 1, description: "3-day supply per person" },
-        { id: "otc-meds", name: "OTC medications", quantity: 1, description: "Pain relievers, anti-diarrheal, etc." },
-        { id: "hand-sanitizer", name: "Hand sanitizer", quantity: 1, description: "For hygiene when water is limited" },
+        { id: "first-aid-kit", name: "Basic First Aid Kit", quantity: 1, description: "Bandages, antiseptic wipes, pain relievers, etc.", infoTooltip: "A first aid kit helps treat minor injuries and prevent infection. In an emergency, medical help may be delayed. Check contents regularly and replace used or expired items." },
+        { id: "prescription-meds", name: "Prescription medications", quantity: 1, personMultiplier: 1, description: "3-day supply per person", infoTooltip: "Having a supply of essential prescription medications is critical if pharmacies are closed. Store in original containers and rotate to keep supply fresh." },
+        { id: "otc-meds", name: "OTC medications", quantity: 1, description: "Pain relievers, anti-diarrheal, etc.", infoTooltip: "Over-the-counter medications help manage pain, fever, or stomach issues when professional care isn't available. Store in a waterproof bag and check expiration dates." },
+        { id: "hand-sanitizer", name: "Hand sanitizer", quantity: 1, description: "For hygiene when water is limited", infoTooltip: "Hand sanitizer helps prevent illness when soap and water aren't available. Store in a leak-proof container and keep away from heat sources." },
       ]
     },
     {
@@ -98,10 +99,10 @@ const KitPage = () => {
       title: "Clothing & Warmth",
       description: "Protection from the elements is critical to maintain body temperature and prevent illness.",
       items: [
-        { id: "change-clothes", name: "Change of clothes", quantity: 1, personMultiplier: 1, description: "Weather-appropriate" },
-        { id: "jacket", name: "Rain jacket/poncho", quantity: 1, personMultiplier: 1 },
-        { id: "emergency-blanket", name: "Emergency blanket", quantity: 1, personMultiplier: 1, description: "Reflective mylar blanket for warmth" },
-        { id: "sturdy-shoes", name: "Sturdy walking shoes", quantity: 1, personMultiplier: 1 },
+        { id: "change-clothes", name: "Change of clothes", quantity: 1, personMultiplier: 1, description: "Weather-appropriate", infoTooltip: "A change of clothes keeps you dry and comfortable if your clothing gets wet or dirty. Choose weather-appropriate, moisture-wicking fabrics. Store in a sealed bag." },
+        { id: "jacket", name: "Rain jacket/poncho", quantity: 1, personMultiplier: 1, infoTooltip: "A rain jacket or poncho protects you from rain and wind, helping prevent hypothermia. Choose a compact, lightweight option and store in an accessible spot." },
+        { id: "emergency-blanket", name: "Emergency blanket", quantity: 1, personMultiplier: 1, description: "Reflective mylar blanket for warmth", infoTooltip: "Emergency blankets reflect body heat and are compact. They help prevent hypothermia in cold or wet conditions. Store in original packaging to save space." },
+        { id: "sturdy-shoes", name: "Sturdy walking shoes", quantity: 1, personMultiplier: 1, infoTooltip: "Sturdy shoes protect your feet if you need to walk long distances or over debris. Choose comfortable, closed-toe shoes and keep them with your kit." },
       ]
     },
     {
@@ -109,13 +110,13 @@ const KitPage = () => {
       title: "Tools & Supplies",
       description: "Multipurpose items that assist with shelter, signaling, and navigation.",
       items: [
-        { id: "flashlight", name: "Flashlight or headlamp", quantity: 1, personMultiplier: 1, description: "With extra batteries" },
-        { id: "multi-tool", name: "Multi-tool or pocket knife", quantity: 1 },
-        { id: "whistle", name: "Emergency whistle", quantity: 1, personMultiplier: 1, description: "For signaling" },
-        { id: "dust-mask", name: "Dust mask", quantity: 1, personMultiplier: 1, description: "Protection from airborne particles" },
-        { id: "duct-tape", name: "Duct tape", quantity: 1, description: "Small roll, multiple uses" },
-        { id: "paper-pencil", name: "Notepad and pencil", quantity: 1 },
-        { id: "local-map", name: "Local map", quantity: 1, description: "Paper map of your area" },
+        { id: "flashlight", name: "Flashlight or headlamp", quantity: 1, personMultiplier: 1, description: "With extra batteries", infoTooltip: "A flashlight or headlamp provides light during power outages or at night. Headlamps keep your hands free. Store with extra batteries and test regularly." },
+        { id: "multi-tool", name: "Multi-tool or pocket knife", quantity: 1, infoTooltip: "A multi-tool or pocket knife is useful for repairs, food prep, and many tasks. Store in your kit and keep it clean and sharp." },
+        { id: "whistle", name: "Emergency whistle", quantity: 1, personMultiplier: 1, description: "For signaling", infoTooltip: "A whistle can signal for help if you're lost or trapped. It's louder and travels farther than shouting. Attach to your bag or wear around your neck." },
+        { id: "dust-mask", name: "Dust mask", quantity: 1, personMultiplier: 1, description: "Protection from airborne particles", infoTooltip: "A dust mask protects your lungs from smoke, dust, or debris. Store in a sealed bag to keep clean and dry." },
+        { id: "duct-tape", name: "Duct tape", quantity: 1, description: "Small roll, multiple uses", infoTooltip: "Duct tape is versatile for repairs, sealing, or first aid. Wrap a small amount around a pencil to save space in your kit." },
+        { id: "paper-pencil", name: "Notepad and pencil", quantity: 1, infoTooltip: "A notepad and pencil let you leave messages, record information, or communicate if phones are down. Store in a waterproof bag." },
+        { id: "local-map", name: "Local map", quantity: 1, description: "Paper map of your area", infoTooltip: "A paper map helps you navigate if GPS or phones fail. Mark important locations in advance. Store in a waterproof sleeve." },
       ]
     },
   ]);
@@ -295,7 +296,7 @@ const KitPage = () => {
                                 <div>
                                   <h4 className="font-medium text-gray-900 flex items-center">
                                     {item.name}
-                                    <InfoTooltip label={`More info about ${item.name}`}/>
+                                    <InfoTooltip label={item.infoTooltip || `More info coming`} />
                                   </h4>
                                   {item.description && (
                                     <p className="text-sm text-gray-500 mt-1">{item.description}</p>
