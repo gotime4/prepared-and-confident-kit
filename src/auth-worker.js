@@ -7,6 +7,7 @@
  * - GET /api/data: Retrieve authenticated user data
  * - POST /api/data: Update authenticated user data
  * - POST /api/logout: Logout and invalidate session token
+ * - POST /api/delete-account: Delete user account
  */
 
 // Utility for crypto operations
@@ -89,12 +90,46 @@ async function handleSignup(request, env) {
     
     // Hash password and create user
     const hashedPassword = await generateSHA256(password);
-    
+    let userId;
     try {
-      await env.DB.prepare(
-        'INSERT INTO users (email, password, name) VALUES (?, ?, ?)'
-      ).bind(email, hashedPassword, name).run();
-      
+      const result = await env.DB.prepare(
+        'INSERT INTO users (email, password, name) VALUES (?, ?, ?) RETURNING id'
+      ).bind(email, hashedPassword, name).first();
+      userId = result && result.id;
+      // --- BEGIN: Insert default user_data for new user ---
+      if (userId) {
+        // Default kit items (structure based on KitPage.tsx)
+        const defaultKit = [
+          { id: "water-bottle", name: "Water bottle (1 liter)", recommendedAmount: 3, currentAmount: 0, unit: "quantity", category: "Water", type: "kit" },
+          { id: "water-filter", name: "Portable water filter", recommendedAmount: 1, currentAmount: 0, unit: "quantity", category: "Water", type: "kit" },
+          { id: "water-purification", name: "Water purification tablets", recommendedAmount: 1, currentAmount: 0, unit: "quantity", category: "Water", type: "kit" },
+          { id: "energy-bars", name: "Energy/Protein bars", recommendedAmount: 6, currentAmount: 0, unit: "quantity", category: "Food", type: "kit" },
+          { id: "dried-fruits", name: "Dried fruits and nuts", recommendedAmount: 1, currentAmount: 0, unit: "quantity", category: "Food", type: "kit" },
+          { id: "canned-food", name: "Ready-to-eat canned foods", recommendedAmount: 3, currentAmount: 0, unit: "quantity", category: "Food", type: "kit" },
+          { id: "utensils", name: "Eating utensils", recommendedAmount: 1, currentAmount: 0, unit: "quantity", category: "Food", type: "kit" },
+          { id: "first-aid-kit", name: "Basic First Aid Kit", recommendedAmount: 1, currentAmount: 0, unit: "quantity", category: "First Aid & Medication", type: "kit" },
+          { id: "prescription-meds", name: "Prescription medications", recommendedAmount: 1, currentAmount: 0, unit: "quantity", category: "First Aid & Medication", type: "kit" },
+          { id: "otc-meds", name: "OTC medications", recommendedAmount: 1, currentAmount: 0, unit: "quantity", category: "First Aid & Medication", type: "kit" },
+          { id: "hand-sanitizer", name: "Hand sanitizer", recommendedAmount: 1, currentAmount: 0, unit: "quantity", category: "First Aid & Medication", type: "kit" },
+          { id: "change-clothes", name: "Change of clothes", recommendedAmount: 1, currentAmount: 0, unit: "quantity", category: "Clothing & Warmth", type: "kit" },
+          { id: "jacket", name: "Rain jacket/poncho", recommendedAmount: 1, currentAmount: 0, unit: "quantity", category: "Clothing & Warmth", type: "kit" },
+          { id: "emergency-blanket", name: "Emergency blanket", recommendedAmount: 1, currentAmount: 0, unit: "quantity", category: "Clothing & Warmth", type: "kit" },
+          { id: "sturdy-shoes", name: "Sturdy walking shoes", recommendedAmount: 1, currentAmount: 0, unit: "quantity", category: "Clothing & Warmth", type: "kit" },
+          { id: "flashlight", name: "Flashlight or headlamp", recommendedAmount: 1, currentAmount: 0, unit: "quantity", category: "Tools & Supplies", type: "kit" },
+          { id: "multi-tool", name: "Multi-tool or pocket knife", recommendedAmount: 1, currentAmount: 0, unit: "quantity", category: "Tools & Supplies", type: "kit" },
+          { id: "whistle", name: "Emergency whistle", recommendedAmount: 1, currentAmount: 0, unit: "quantity", category: "Tools & Supplies", type: "kit" },
+          { id: "dust-mask", name: "Dust mask", recommendedAmount: 1, currentAmount: 0, unit: "quantity", category: "Tools & Supplies", type: "kit" },
+          { id: "duct-tape", name: "Duct tape", recommendedAmount: 1, currentAmount: 0, unit: "quantity", category: "Tools & Supplies", type: "kit" },
+          { id: "paper-pencil", name: "Notepad and pencil", recommendedAmount: 1, currentAmount: 0, unit: "quantity", category: "Tools & Supplies", type: "kit" },
+          { id: "local-map", name: "Local map", recommendedAmount: 1, currentAmount: 0, unit: "quantity", category: "Tools & Supplies", type: "kit" }
+        ];
+        // You can add a similar array for food storage if you have it, or leave as [] for now
+        const defaultStorage = [];
+        await env.DB.prepare(
+          'INSERT INTO user_data (user_id, data) VALUES (?, ?)' 
+        ).bind(userId, JSON.stringify({ kit: defaultKit, storage: defaultStorage })).run();
+      }
+      // --- END: Insert default user_data for new user ---
       return new Response(JSON.stringify({ 
         success: true,
         message: 'User created successfully' 
@@ -324,6 +359,47 @@ async function handleLogout(request, env) {
   }
 }
 
+// Handle account deletion request
+async function handleDeleteAccount(request, env) {
+  const authHeader = request.headers.get('Authorization');
+  const token = authHeader && authHeader.startsWith('Bearer ')
+    ? authHeader.substring(7)
+    : null;
+
+  const user = await validateSession(env, token);
+  if (!user) {
+    return new Response(JSON.stringify({
+      error: 'Unauthorized'
+    }), {
+      status: 401,
+      headers: { 'Content-Type': 'application/json' }
+    });
+  }
+
+  try {
+    // Delete all sessions for the user
+    await env.DB.prepare('DELETE FROM sessions WHERE user_id = ?').bind(user.id).run();
+    // Delete user data
+    await env.DB.prepare('DELETE FROM user_data WHERE user_id = ?').bind(user.id).run();
+    // Delete user record
+    await env.DB.prepare('DELETE FROM users WHERE id = ?').bind(user.id).run();
+    return new Response(JSON.stringify({
+      success: true,
+      message: 'Account deleted successfully'
+    }), {
+      status: 200,
+      headers: { 'Content-Type': 'application/json' }
+    });
+  } catch (error) {
+    return new Response(JSON.stringify({
+      error: 'Failed to delete account'
+    }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' }
+    });
+  }
+}
+
 // Main request handler
 export default {
   async fetch(request, env) {
@@ -399,6 +475,14 @@ export default {
       
       if (path === '/api/logout' && request.method === 'POST') {
         const response = await handleLogout(request, env);
+        return new Response(response.body, {
+          status: response.status,
+          headers: { ...response.headers, ...corsHeaders }
+        });
+      }
+      
+      if (path === '/api/delete-account' && request.method === 'POST') {
+        const response = await handleDeleteAccount(request, env);
         return new Response(response.body, {
           status: response.status,
           headers: { ...response.headers, ...corsHeaders }
