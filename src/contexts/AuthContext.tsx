@@ -511,6 +511,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         credentials: 'include',
         mode: 'cors',
         headers: {
+          'Authorization': `Bearer ${localStorage.getItem('auth_token')}`,
           'Content-Type': 'application/json',
         }
       });
