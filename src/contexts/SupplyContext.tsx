@@ -161,11 +161,13 @@ export const SupplyProvider: React.FC<SupplyProviderProps> = ({ children }) => {
   const syncTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const [peopleCount, setPeopleCount] = useState<number>(() => {
     const saved = localStorage.getItem('foodPeopleCount');
-    return saved ? parseInt(saved) : 1;
+    // Set to 0 if not found (new user)
+    return saved ? parseInt(saved) : 0;
   });
   const [kitPeopleCount, setKitPeopleCount] = useState<number>(() => {
     const saved = localStorage.getItem('kitPeopleCount');
-    return saved ? parseInt(saved) : 1;
+    // Set to 0 if not found (new user)
+    return saved ? parseInt(saved) : 0;
   });
 
   // Add debugging info on mount
