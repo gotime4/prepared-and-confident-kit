@@ -481,7 +481,7 @@ export default {
         });
       }
       
-      if (path === '/api/delete-account' && request.method === 'POST') {
+      if (path === '/api/delete-account' && (request.method === 'POST' || request.method === 'DELETE')) {
         const response = await handleDeleteAccount(request, env);
         return new Response(response.body, {
           status: response.status,
