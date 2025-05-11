@@ -296,7 +296,9 @@ const KitPage = () => {
                                 <div>
                                   <h4 className="font-medium text-gray-900 flex items-center">
                                     {item.name}
-                                    <InfoTooltip label={item.infoTooltip || `More info coming`} />
+                                    <InfoTooltip label={item.infoTooltip || `More info coming`}>
+                                      {item.infoTooltip}
+                                    </InfoTooltip>
                                   </h4>
                                   {item.description && (
                                     <p className="text-sm text-gray-500 mt-1">{item.description}</p>
