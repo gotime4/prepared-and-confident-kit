@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { useSupply } from "@/contexts/SupplyContext";
@@ -24,11 +24,11 @@ const PrepReport = () => {
   const foodProgress = calculateProgress(foodItems);
   const kitProgress = calculateProgress(kitItems);
   const overallScore = getOverallScore();
-  const priorityItems = getPriorities();
-  const completionCounts = getCompletedCount();
-  
-  // Combine all items for the detailed inventory in the PDF
-  const allItems = [...foodItems, ...kitItems];
+
+  // Memoize priorityItems, completionCounts, and allItems to update when dependencies change
+  const priorityItems = useMemo(() => getPriorities(), [foodItems, kitItems, getPriorities]);
+  const completionCounts = useMemo(() => getCompletedCount(), [foodItems, kitItems, getCompletedCount]);
+  const allItems = useMemo(() => [...foodItems, ...kitItems], [foodItems, kitItems]);
   
   useEffect(() => {
     // Log priority items to the console for debugging/visibility
