@@ -78,7 +78,7 @@ const PrepReport = () => {
                   <span className="text-4xl font-bold">{overallScore}%</span>
                 </div>
               </div>
-              <Progress value={overallScore} className="h-2 mt-2" />
+              <Progress value={overallScore} className="h-2 mt-2 bg-gray-200 [&>div]:bg-sky-500" />
             </CardContent>
           </Card>
           
